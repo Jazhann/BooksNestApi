@@ -4,6 +4,7 @@ import { UserDAO } from 'src/user/DAO/user.DAO';
 
 import * as bcrypt from 'bcrypt';
 import * as _ from 'lodash';
+import { UserTokenDTO } from 'src/user/DTOs/userToken.DTO';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +28,7 @@ export class AuthService {
     }
   }
 
-  async login(user: any) {
+  async login(user: any): Promise<UserTokenDTO> {
     const payload = { email: user.email, sub: user._id };
     return {
       access_token: this.jwtService.sign(payload),

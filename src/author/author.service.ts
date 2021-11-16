@@ -20,10 +20,8 @@ export class AuthorService {
     });
     if (checkAuthor != null) {
       throw new HttpException(
-        {
-          message: Constants.authorAlreadyExists,
-        },
-        403,
+        { message: Constants.authorAlreadyExists },
+        Constants.httpStatus403,
       );
     } else {
       return await this.authorDAO.createAuthor(newAuthor);
@@ -36,7 +34,17 @@ export class AuthorService {
    * @returns author object
    */
   async getAuthor(id: string) {
-    return await this.authorDAO.getAuthor({ _id: new Types.ObjectId(id) });
+    const author = await this.authorDAO.getAuthor({
+      _id: new Types.ObjectId(id),
+    });
+    if (author) {
+      return author;
+    } else {
+      throw new HttpException(
+        { message: Constants.authorNotFound },
+        Constants.httpStatus404,
+      );
+    }
   }
 
   /**
@@ -53,18 +61,23 @@ export class AuthorService {
    * @returns update log
    */
   async updateAuthor(author: AuthorDTO) {
-    const checkAuthorName = await this.authorDAO.getAuthor({
-      name: author.name.toLocaleLowerCase(),
-    });
-    if (checkAuthorName != null) {
+    const updatedInfo = await this.authorDAO.updateAuthor(author);
+    if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
+      return { message: Constants.authorUpdated };
+    } else if (
+      updatedInfo.modifiedCount === 0 &&
+      updatedInfo.matchedCount === 1
+    ) {
       throw new HttpException(
-        {
-          message: Constants.authorWithTheSameName,
-        },
-        403,
+        { message: Constants.authorNotUpdated },
+        Constants.httpStatus202,
+      );
+    } else {
+      throw new HttpException(
+        { message: Constants.authorNotFound },
+        Constants.httpStatus404,
       );
     }
-    return await this.authorDAO.updateAuthor(author);
   }
 
   /**
@@ -73,9 +86,16 @@ export class AuthorService {
    * @returns deletion log
    */
   async deleteAuthor(id: string) {
-    const deletedAuthor = await this.authorDAO.deleteAuthor(
+    const deletedInfo = await this.authorDAO.deleteAuthor(
       new Types.ObjectId(id),
     );
-    return deletedAuthor;
+    if (deletedInfo.deletedCount === 1) {
+      return { message: Constants.authorDeleted };
+    } else {
+      throw new HttpException(
+        { message: Constants.authorNotFound },
+        Constants.httpStatus404,
+      );
+    }
   }
 }

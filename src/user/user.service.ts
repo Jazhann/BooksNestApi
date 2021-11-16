@@ -22,10 +22,8 @@ export class UserService {
     );
     if (checkUser != null) {
       throw new HttpException(
-        {
-          message: Constants.userAlreadyExists,
-        },
-        Constants.ok,
+        { message: Constants.userAlreadyExists },
+        Constants.httpStatus403,
       );
     } else {
       newUser.password = await bcrypt.hash(newUser.password, Constants.rounds);
@@ -39,7 +37,15 @@ export class UserService {
    * @returns user object
    */
   async getUser(id: string) {
-    return await this.userDAO.getUser({ _id: new Types.ObjectId(id) });
+    const user = await this.userDAO.getUser({ _id: new Types.ObjectId(id) });
+    if (user) {
+      return user;
+    } else {
+      throw new HttpException(
+        { message: Constants.userNotFound },
+        Constants.httpStatus404,
+      );
+    }
   }
 
   /**
@@ -47,7 +53,7 @@ export class UserService {
    * @returns user object array
    */
   async getUsers() {
-    return await this.userDAO.getUser({});
+    return await this.userDAO.getUsers({});
   }
 
   /**
@@ -69,7 +75,7 @@ export class UserService {
         {
           message: Constants.userWithThisEmail,
         },
-        Constants.ok,
+        Constants.httpStatus200,
       );
     } else {
       if (user.password !== null) {
@@ -79,7 +85,26 @@ export class UserService {
       } else {
         user.password = oldUser.password;
       }
-      return await this.userDAO.updateUser(new Types.ObjectId(id), user);
+      const updatedInfo = await this.userDAO.updateUser(
+        new Types.ObjectId(id),
+        user,
+      );
+      if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
+        return { message: Constants.userUpdated };
+      } else if (
+        updatedInfo.modifiedCount === 0 &&
+        updatedInfo.matchedCount === 1
+      ) {
+        throw new HttpException(
+          { message: Constants.userNotUpdated },
+          Constants.httpStatus202,
+        );
+      } else {
+        throw new HttpException(
+          { message: Constants.userNotFound },
+          Constants.httpStatus404,
+        );
+      }
     }
   }
 
@@ -89,7 +114,14 @@ export class UserService {
    * @returns deletion log
    */
   async deleteUser(id: string) {
-    const deletedUser = await this.userDAO.deleteUser(new Types.ObjectId(id));
-    return deletedUser;
+    const deletedInfo = await this.userDAO.deleteUser(new Types.ObjectId(id));
+    if (deletedInfo.deletedCount === 1) {
+      return { message: Constants.userDeleted };
+    } else {
+      throw new HttpException(
+        { message: Constants.userNotFound },
+        Constants.httpStatus404,
+      );
+    }
   }
 }

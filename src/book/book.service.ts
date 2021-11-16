@@ -24,10 +24,8 @@ export class BookService {
     });
     if (checkBook != null) {
       throw new HttpException(
-        {
-          message: Constants.bookAlreadyExists,
-        },
-        Constants.ok,
+        { message: Constants.bookAlreadyExists },
+        Constants.httpStatus403,
       );
     } else {
       const book = await this.bookDAO.createBook(newBook);
@@ -46,7 +44,15 @@ export class BookService {
    * @returns book object
    */
   async getBook(id: string) {
-    return await this.bookDAO.getBook({ _id: new Types.ObjectId(id) });
+    const book = await this.bookDAO.getBook({ _id: new Types.ObjectId(id) });
+    if (book) {
+      return book;
+    } else {
+      throw new HttpException(
+        { message: Constants.bookNotFound },
+        Constants.httpStatus404,
+      );
+    }
   }
 
   /**
@@ -63,7 +69,23 @@ export class BookService {
    * @returns update log
    */
   async updateBook(book: BookDTO) {
-    return await this.bookDAO.updateBook(book);
+    const updatedInfo = await this.bookDAO.updateBook(book);
+    if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
+      return { message: Constants.bookUpdated };
+    } else if (
+      updatedInfo.modifiedCount === 0 &&
+      updatedInfo.matchedCount === 1
+    ) {
+      throw new HttpException(
+        { message: Constants.bookNotUpdated },
+        Constants.httpStatus202,
+      );
+    } else {
+      throw new HttpException(
+        { message: Constants.bookNotFound },
+        Constants.httpStatus404,
+      );
+    }
   }
 
   /**
@@ -72,7 +94,14 @@ export class BookService {
    * @returns deletion log
    */
   async deleteBook(id: string) {
-    const deletedBook = await this.bookDAO.deleteBook(new Types.ObjectId(id));
-    return deletedBook;
+    const deletedInfo = await this.bookDAO.deleteBook(new Types.ObjectId(id));
+    if (deletedInfo.deletedCount === 1) {
+      return { message: Constants.bookDeleted };
+    } else {
+      throw new HttpException(
+        { message: Constants.bookNotFound },
+        Constants.httpStatus404,
+      );
+    }
   }
 }

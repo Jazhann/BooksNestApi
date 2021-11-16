@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,6 +14,16 @@ async function bootstrap() {
       'Origin, X-Requested-With, Content-Type, Accept, Authorization',
   };
   app.enableCors(options);
+
+  const config = new DocumentBuilder()
+    .setTitle('Books and Authors')
+    .setDescription('Book and Authors API')
+    .setVersion('1.0')
+    .addTag('books')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
   await app.listen(process.env.PORT || 8080);
 }
 bootstrap();
