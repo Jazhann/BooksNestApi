@@ -5,9 +5,7 @@ import { AuthorSchema } from 'src/author/models/author.model';
 import { AuthorDAO } from 'src/author/DAO/author.DAO';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: 'Author', schema: AuthorSchema }]),
-  ],
+  imports: [MongooseModule.forFeature([{ name: 'Author', schema: AuthorSchema }])],
   exports: [AuthorDAO, MongooseModule],
   providers: [AuthorDAO],
 })

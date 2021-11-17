@@ -4,10 +4,14 @@ import { Types } from 'mongoose';
 import { AuthorDTO } from 'src/author/DTOs/author.DTO';
 import { AuthorDAO } from 'src/author/DAO/author.DAO';
 import { Constants } from 'src/common/constants';
+import { BookDAO } from 'src/book/DAO/book.DAO';
 
 @Injectable()
 export class AuthorService {
-  constructor(@Inject('AuthorDAO') private readonly authorDAO: AuthorDAO) {}
+  constructor(
+    @Inject('AuthorDAO') private readonly authorDAO: AuthorDAO,
+    @Inject('BookDAO') private readonly bookDAO: BookDAO,
+  ) {}
 
   /**
    * It creates a new Author
@@ -18,11 +22,9 @@ export class AuthorService {
     const checkAuthor = await this.authorDAO.getAuthor({
       name: newAuthor.name,
     });
+
     if (checkAuthor != null) {
-      throw new HttpException(
-        { message: Constants.authorAlreadyExists },
-        Constants.httpStatus403,
-      );
+      throw new HttpException({ message: Constants.authorAlreadyExists }, Constants.httpStatus403);
     } else {
       return await this.authorDAO.createAuthor(newAuthor);
     }
@@ -37,13 +39,11 @@ export class AuthorService {
     const author = await this.authorDAO.getAuthor({
       _id: new Types.ObjectId(id),
     });
+
     if (author) {
       return author;
     } else {
-      throw new HttpException(
-        { message: Constants.authorNotFound },
-        Constants.httpStatus404,
-      );
+      throw new HttpException({ message: Constants.authorNotFound }, Constants.httpStatus404);
     }
   }
 
@@ -62,40 +62,32 @@ export class AuthorService {
    */
   async updateAuthor(author: AuthorDTO) {
     const updatedInfo = await this.authorDAO.updateAuthor(author);
+
     if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
       return { message: Constants.authorUpdated };
-    } else if (
-      updatedInfo.modifiedCount === 0 &&
-      updatedInfo.matchedCount === 1
-    ) {
-      throw new HttpException(
-        { message: Constants.authorNotUpdated },
-        Constants.httpStatus202,
-      );
+    } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
+      throw new HttpException({ message: Constants.authorNotUpdated }, Constants.httpStatus202);
     } else {
-      throw new HttpException(
-        { message: Constants.authorNotFound },
-        Constants.httpStatus404,
-      );
+      throw new HttpException({ message: Constants.authorNotFound }, Constants.httpStatus404);
     }
   }
 
   /**
-   * It delete an author
+   * It delete an author and books related to this author
    * @param id string, author id
    * @returns deletion log
    */
   async deleteAuthor(id: string) {
-    const deletedInfo = await this.authorDAO.deleteAuthor(
-      new Types.ObjectId(id),
-    );
+    const deletedInfo = await this.authorDAO.deleteAuthor(new Types.ObjectId(id));
+
     if (deletedInfo.deletedCount === 1) {
+      const books = await this.bookDAO.getBooks({ authors: id });
+      for (const book of books) {
+        await this.bookDAO.deleteBook(book._id);
+      }
       return { message: Constants.authorDeleted };
     } else {
-      throw new HttpException(
-        { message: Constants.authorNotFound },
-        Constants.httpStatus404,
-      );
+      throw new HttpException({ message: Constants.authorNotFound }, Constants.httpStatus404);
     }
   }
 }

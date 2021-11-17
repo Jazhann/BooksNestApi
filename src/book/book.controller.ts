@@ -1,25 +1,9 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 
 import { BookDTO } from 'src/book/DTOs/book.DTO';
 import { BookService } from 'src/book/book.service';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('books')
 @ApiBearerAuth()
@@ -46,8 +30,7 @@ export class BookController {
   })
   @ApiBody({
     type: BookDTO,
-    description:
-      'Book object, authors array must be fill with authors objectId',
+    description: 'Book object, authors array must be fill with authors objectId',
   })
   @UseGuards(AuthGuard('jwt'))
   @Post()
@@ -121,8 +104,7 @@ export class BookController {
   })
   @ApiBody({
     type: BookDTO,
-    description:
-      'Book object, authors array must be fill with authors objectId',
+    description: 'Book object, authors array must be fill with authors objectId',
   })
   @UseGuards(AuthGuard('jwt'))
   @Put()

@@ -22,11 +22,9 @@ export class BookService {
     const checkBook = await this.bookDAO.getBook({
       isbn: newBook.isbn.toLocaleLowerCase(),
     });
+
     if (checkBook != null) {
-      throw new HttpException(
-        { message: Constants.bookAlreadyExists },
-        Constants.httpStatus403,
-      );
+      throw new HttpException({ message: Constants.bookAlreadyExists }, Constants.httpStatus403);
     } else {
       const book = await this.bookDAO.createBook(newBook);
       for (const author of book.authors) {
@@ -45,13 +43,11 @@ export class BookService {
    */
   async getBook(id: string) {
     const book = await this.bookDAO.getBook({ _id: new Types.ObjectId(id) });
+
     if (book) {
       return book;
     } else {
-      throw new HttpException(
-        { message: Constants.bookNotFound },
-        Constants.httpStatus404,
-      );
+      throw new HttpException({ message: Constants.bookNotFound }, Constants.httpStatus404);
     }
   }
 
@@ -70,38 +66,37 @@ export class BookService {
    */
   async updateBook(book: BookDTO) {
     const updatedInfo = await this.bookDAO.updateBook(book);
+
     if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
       return { message: Constants.bookUpdated };
-    } else if (
-      updatedInfo.modifiedCount === 0 &&
-      updatedInfo.matchedCount === 1
-    ) {
-      throw new HttpException(
-        { message: Constants.bookNotUpdated },
-        Constants.httpStatus202,
-      );
+    } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
+      throw new HttpException({ message: Constants.bookNotUpdated }, Constants.httpStatus202);
     } else {
-      throw new HttpException(
-        { message: Constants.bookNotFound },
-        Constants.httpStatus404,
-      );
+      throw new HttpException({ message: Constants.bookNotFound }, Constants.httpStatus404);
     }
   }
 
   /**
-   * It delete an book
+   * It delete an book and the reference in authors
    * @param id string, book id
    * @returns deletion log
    */
   async deleteBook(id: string) {
     const deletedInfo = await this.bookDAO.deleteBook(new Types.ObjectId(id));
+
     if (deletedInfo.deletedCount === 1) {
+      const authors = await this.authorDAO.getAuthors({ books: id });
+      for (const author of authors) {
+        const updatedAuthor = {
+          _id: author._id,
+          name: author.name,
+          books: author.books.filter((book) => book.toString() !== id),
+        };
+        this.authorDAO.updateAuthor(updatedAuthor);
+      }
       return { message: Constants.bookDeleted };
     } else {
-      throw new HttpException(
-        { message: Constants.bookNotFound },
-        Constants.httpStatus404,
-      );
+      throw new HttpException({ message: Constants.bookNotFound }, Constants.httpStatus404);
     }
   }
 }

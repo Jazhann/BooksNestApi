@@ -1,25 +1,9 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 
 import { AuthorDTO } from 'src/author/DTOs/author.DTO';
 import { AuthorService } from 'src/author/author.service';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('authors')
 @ApiBearerAuth()
@@ -130,7 +114,7 @@ export class AuthorController {
 
   @ApiOperation({
     summary: 'Delete an Author',
-    description: 'Delete an Author by id param',
+    description: 'Delete an Author by id param and all books related',
   })
   @ApiResponse({
     status: 200,

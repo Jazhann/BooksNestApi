@@ -7,9 +7,7 @@ import { Author } from 'src/author/interfaces/author.interface';
 
 @Injectable()
 export class AuthorDAO {
-  constructor(
-    @InjectModel('Author') private readonly authorModel: Model<Author>,
-  ) {}
+  constructor(@InjectModel('Author') private readonly authorModel: Model<Author>) {}
 
   async createAuthor(newAuthor: AuthorDTO): Promise<Author> {
     const createdAuthor = new this.authorModel(newAuthor);
@@ -21,7 +19,7 @@ export class AuthorDAO {
   }
 
   async getAuthors(params): Promise<Author[]> {
-    return this.authorModel.find(params).populate('books').exec();
+    return this.authorModel.find(params).exec();
   }
 
   async updateAuthor(author: AuthorDTO): Promise<any> {
