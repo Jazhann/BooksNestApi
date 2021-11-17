@@ -6,6 +6,5 @@ export interface Book extends Document {
   readonly title: string;
   readonly isbn: string;
   readonly authors: Author[];
-  readonly releaseDate: Date;
   readonly pages: number;
 }

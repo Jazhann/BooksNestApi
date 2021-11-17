@@ -28,9 +28,9 @@ export class BookService {
     } else {
       const book = await this.bookDAO.createBook(newBook);
       for (const author of book.authors) {
-        const authorSaved = await this.authorDAO.getAuthor({ _id: author });
-        authorSaved.books.push(book);
-        await this.authorDAO.updateAuthor(authorSaved);
+        const updatedAuthor = await this.authorDAO.getAuthor({ _id: author });
+        updatedAuthor.books.push(book);
+        await this.authorDAO.updateAuthor(updatedAuthor);
       }
       return book;
     }
@@ -65,6 +65,15 @@ export class BookService {
    * @returns update log
    */
   async updateBook(book: BookDTO) {
+    const oldBook = await this.bookDAO.getBook({ _id: book._id });
+    const differentsArrays = JSON.stringify(oldBook.authors.sort()) !== JSON.stringify(book.authors.sort());
+
+    if (differentsArrays && book.authors.length > 0) {
+      await this.updateAuthors(book, oldBook);
+    } else if (differentsArrays && book.authors.length === 0) {
+      await this.updateAuthorsArrayEmpty(book, oldBook);
+    }
+
     const updatedInfo = await this.bookDAO.updateBook(book);
 
     if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
@@ -73,6 +82,56 @@ export class BookService {
       throw new HttpException({ message: Constants.bookNotUpdated }, Constants.httpStatus202);
     } else {
       throw new HttpException({ message: Constants.bookNotFound }, Constants.httpStatus404);
+    }
+  }
+
+  /**
+   * It update all authors when authors array containt authors
+   * @param book book to update
+   * @param oldBook book saved
+   */
+  private async updateAuthors(book: BookDTO, oldBook) {
+    for (const author of book.authors) {
+      const savedAuthor = await this.authorDAO.getAuthor({ _id: author });
+
+      let books = savedAuthor.books;
+
+      let included = false;
+      books.forEach((bk) => {
+        if (bk._id.toString() === book._id.toString()) {
+          included = true;
+        }
+      });
+
+      if (!included) {
+        books.push(oldBook);
+      } else {
+        books = books.filter((bk) => bk.toString() !== book._id.toString());
+      }
+
+      const updatedAuthor = {
+        _id: savedAuthor._id,
+        name: savedAuthor.name,
+        books: [...new Set(books)],
+      };
+      await this.authorDAO.updateAuthor(updatedAuthor);
+    }
+  }
+
+  /**
+   * It update all authors when authors array is empty
+   * @param book book to update
+   * @param oldBook book saved
+   */
+  private async updateAuthorsArrayEmpty(book: BookDTO, oldBook) {
+    for (const author of oldBook.authors) {
+      const savedAuthor = await this.authorDAO.getAuthor({ _id: author });
+      const updatedAuthor = {
+        _id: savedAuthor._id,
+        name: savedAuthor.name,
+        books: savedAuthor.books.filter((bk) => bk.toString() !== book._id.toString()),
+      };
+      await this.authorDAO.updateAuthor(updatedAuthor);
     }
   }
 

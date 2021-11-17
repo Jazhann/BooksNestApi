@@ -15,7 +15,7 @@ export class BookDAO {
   }
 
   async getBook(params): Promise<Book> {
-    return this.bookModel.findOne(params).populate('authors').exec();
+    return this.bookModel.findOne(params).exec();
   }
 
   async getBooks(params): Promise<Book[]> {

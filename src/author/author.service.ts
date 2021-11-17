@@ -61,6 +61,14 @@ export class AuthorService {
    * @returns update log
    */
   async updateAuthor(author: AuthorDTO) {
+    const oldAuthor = await this.authorDAO.getAuthor({ _id: author._id });
+    const differentsArrays = JSON.stringify(oldAuthor.books.sort()) !== JSON.stringify(author.books.sort());
+
+    if (differentsArrays && author.books.length > 0) {
+      await this.updateBooks(author, oldAuthor);
+    } else if (differentsArrays && author.books.length === 0) {
+      await this.updateBooksEmptyArray(author, oldAuthor);
+    }
     const updatedInfo = await this.authorDAO.updateAuthor(author);
 
     if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
@@ -69,6 +77,60 @@ export class AuthorService {
       throw new HttpException({ message: Constants.authorNotUpdated }, Constants.httpStatus202);
     } else {
       throw new HttpException({ message: Constants.authorNotFound }, Constants.httpStatus404);
+    }
+  }
+
+  /**
+   * It update all author books when books array containt authors
+   * @param author author to update
+   * @param oldAuthor author saved
+   */
+  private async updateBooks(author: AuthorDTO, oldAuthor) {
+    for (const book of author.books) {
+      const savedBook = await this.bookDAO.getBook({ _id: book });
+
+      let authors = savedBook.authors;
+
+      let included = false;
+      authors.forEach((at) => {
+        if (at._id.toString() === author._id.toString()) {
+          included = true;
+        }
+      });
+
+      if (!included) {
+        authors.push(oldAuthor);
+      } else {
+        authors = authors.filter((at) => at.toString() !== author._id.toString());
+      }
+
+      const updatedBook = {
+        _id: savedBook._id,
+        title: savedBook.title,
+        isbn: savedBook.isbn,
+        pages: savedBook.pages,
+        authors: [...new Set(authors)],
+      };
+      await this.bookDAO.updateBook(updatedBook);
+    }
+  }
+
+  /**
+   * It update all author books when books array is empty
+   * @param author author to update
+   * @param oldAuthor author saved
+   */
+  private async updateBooksEmptyArray(author: AuthorDTO, oldAuthor) {
+    for (const book of oldAuthor.books) {
+      const savedBook = await this.bookDAO.getBook({ _id: book });
+      const updatedBook = {
+        _id: savedBook._id,
+        title: savedBook.title,
+        isbn: savedBook.isbn,
+        pages: savedBook.pages,
+        authors: savedBook.authors.filter((at) => at.toString() !== author._id.toString()),
+      };
+      await this.bookDAO.updateBook(updatedBook);
     }
   }
 

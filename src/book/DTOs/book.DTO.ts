@@ -12,7 +12,5 @@ export class BookDTO {
   @ApiProperty()
   authors: AuthorDTO[];
   @ApiProperty()
-  releaseDate: Date;
-  @ApiProperty()
   pages: number;
 }
