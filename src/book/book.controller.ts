@@ -119,7 +119,7 @@ export class BookController {
     description: 'Book not found',
   })
   @ApiBody({
-    type: BookDTO,
+    type: BookUpdateDTO,
     description: 'Book object, authors array must be fill with authors objectId',
   })
   @UseGuards(AuthGuard('jwt'))

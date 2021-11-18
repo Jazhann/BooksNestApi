@@ -8,6 +8,7 @@ import { UserDAO } from 'src/user/DAO/user.DAO';
 import { Constants } from 'src/common/constants';
 
 import * as exception from 'src/common/helpers/exception.helper';
+import { UserUpdateDTO } from './DTOs/userUpdate.DTO';
 
 @Injectable()
 export class UserService {
@@ -54,12 +55,11 @@ export class UserService {
 
   /**
    * It update an user
-   * @param id object, user id
    * @param user object
    * @returns update log
    */
-  async updateUser(id: string, user: UserDTO) {
-    const oldUser = await this.getUser(id);
+  async updateUser(user: UserUpdateDTO) {
+    const oldUser = await this.getUser(user._id.toString());
     const checkUserEmail = await this.userDAO.getUser({
       email: user.email.toLocaleLowerCase(),
     });
@@ -75,7 +75,7 @@ export class UserService {
         user.password = oldUser.password;
       }
 
-      const updatedInfo = await this.userDAO.updateUser(new Types.ObjectId(id), user);
+      const updatedInfo = await this.userDAO.updateUser(user);
       if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
         return { message: Constants.userUpdated };
       } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {

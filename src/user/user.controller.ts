@@ -4,6 +4,7 @@ import { UserDTO } from 'src/user/DTOs/user.DTO';
 import { UserService } from 'src/user/user.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserUpdateDTO } from './DTOs/userUpdate.DTO';
 
 @ApiTags('users')
 @Controller('api/users')
@@ -118,14 +119,14 @@ export class UserController {
     description: 'User not found',
   })
   @ApiBody({
-    type: UserDTO,
+    type: UserUpdateDTO,
     description: 'User object',
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  @Put(':id')
-  async updateUser(@Param('id') id: string, @Body() user: UserDTO) {
-    return await this.usersService.updateUser(id, user);
+  @Put()
+  async updateUser(@Body() user: UserUpdateDTO) {
+    return await this.usersService.updateUser(user);
   }
 
   @ApiOperation({

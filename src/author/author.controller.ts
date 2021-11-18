@@ -118,7 +118,7 @@ export class AuthorController {
     description: 'Author not found',
   })
   @ApiBody({
-    type: AuthorDTO,
+    type: AuthorUpdateDTO,
     description: 'Author object, books array can be fill with authors objectId',
   })
   @UseGuards(AuthGuard('jwt'))

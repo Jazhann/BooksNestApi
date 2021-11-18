@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 
 import { UserDTO } from 'src/user/DTOs/user.DTO';
 import { User } from 'src/user/interfaces/user.interface';
+import { UserUpdateDTO } from '../DTOs/userUpdate.DTO';
 
 @Injectable()
 export class UserDAO {
@@ -22,8 +23,8 @@ export class UserDAO {
     return this.userModel.find(params).exec();
   }
 
-  async updateUser(id, user: UserDTO): Promise<any> {
-    return this.userModel.updateOne({ _id: id }, user);
+  async updateUser(user: UserUpdateDTO): Promise<any> {
+    return this.userModel.updateOne({ _id: user._id }, user);
   }
 
   async deleteUser(id): Promise<any> {
