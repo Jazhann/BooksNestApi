@@ -1,5 +1,6 @@
 import { Injectable, Inject, HttpException } from '@nestjs/common';
 import { Types } from 'mongoose';
+import { Parser, transforms as tf } from 'json2csv';
 
 import { AuthorDTO } from 'src/author/DTOs/author.DTO';
 import { AuthorDAO } from 'src/author/DAO/author.DAO';
@@ -151,5 +152,25 @@ export class AuthorService {
     } else {
       throw new HttpException({ message: Constants.authorNotFound }, Constants.httpStatus404);
     }
+  }
+
+  /**
+   * It gets all authors and map to csv
+   * @returns csv string
+   */
+  async getCsv() {
+    const authors = await this.getAuthors();
+    const authorsMapped = authors.map((author) => {
+      return {
+        _id: author.id,
+        name: author.name,
+        books: author.books,
+      };
+    });
+    const fields = ['_id', 'name', 'books'];
+    const transforms = [tf.unwind({ paths: ['books'] })];
+    const parser = new Parser({ fields, transforms });
+    const csv = parser.parse(authorsMapped);
+    return csv;
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Response } from '@nestjs/common';
 
 import { BookDTO } from 'src/book/DTOs/book.DTO';
 import { BookService } from 'src/book/book.service';
@@ -57,7 +57,7 @@ export class BookController {
   })
   @ApiParam({ name: 'id', type: 'string', description: 'Book id' })
   @UseGuards(AuthGuard('jwt'))
-  @Get(':id')
+  @Get('getbook/:id')
   async getBook(@Param('id') id: string) {
     return await this.bookService.getBook(id);
   }
@@ -75,7 +75,6 @@ export class BookController {
     status: 401,
     description: 'Unauthorized',
   })
-  @ApiParam({ name: 'id', type: 'string', description: 'Book id' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async getBooks() {
@@ -133,5 +132,25 @@ export class BookController {
   @Delete(':id')
   async deleteIser(@Param('id') id: string) {
     return await this.bookService.deleteBook(id);
+  }
+
+  @ApiOperation({
+    summary: 'Get all Books in csv format',
+    description: 'Get all Books in csv format',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Csv genereted',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @Get('getcsv')
+  async export(@Response() res) {
+    const csv = await this.bookService.getCsv();
+    res.set('Content-Type', 'text/csv');
+    res.attachment('authors.csv');
+    return res.send(csv);
   }
 }

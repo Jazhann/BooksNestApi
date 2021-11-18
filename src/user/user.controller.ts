@@ -74,7 +74,6 @@ export class UserController {
     status: 401,
     description: 'Unauthorized',
   })
-  @ApiParam({ name: 'id', type: 'string', description: 'User id' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get()

@@ -1,5 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
-
+import { Controller, Get, Post, Put, Delete, Body, Param, Response, UseGuards } from '@nestjs/common';
 import { AuthorDTO } from 'src/author/DTOs/author.DTO';
 import { AuthorService } from 'src/author/author.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -57,7 +56,7 @@ export class AuthorController {
   })
   @ApiParam({ name: 'id', type: 'string', description: 'Author id' })
   @UseGuards(AuthGuard('jwt'))
-  @Get(':id')
+  @Get('getauthor/:id')
   async getAuthor(@Param('id') id: string) {
     return await this.authorService.getAuthor(id);
   }
@@ -75,7 +74,6 @@ export class AuthorController {
     status: 401,
     description: 'Unauthorized',
   })
-  @ApiParam({ name: 'id', type: 'string', description: 'Author id' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async getAuthors() {
@@ -133,5 +131,25 @@ export class AuthorController {
   @Delete(':id')
   async deleteAuthor(@Param('id') id: string) {
     return await this.authorService.deleteAuthor(id);
+  }
+
+  @ApiOperation({
+    summary: 'Get all Authors in csv format',
+    description: 'Get all Authors in csv format',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Csv genereted',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @Get('getcsv')
+  async export(@Response() res) {
+    const csv = await this.authorService.getCsv();
+    res.set('Content-Type', 'text/csv');
+    res.attachment('authors.csv');
+    return res.send(csv);
   }
 }

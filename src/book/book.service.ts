@@ -1,5 +1,6 @@
 import { Injectable, Inject, HttpException } from '@nestjs/common';
 import { Types } from 'mongoose';
+import { Parser, transforms as tf } from 'json2csv';
 
 import { BookDTO } from 'src/book/DTOs/book.DTO';
 import { BookDAO } from 'src/book/DAO/book.DAO';
@@ -157,5 +158,27 @@ export class BookService {
     } else {
       throw new HttpException({ message: Constants.bookNotFound }, Constants.httpStatus404);
     }
+  }
+
+  /**
+   * It gets all books and map to csv
+   * @returns csv string
+   */
+  async getCsv() {
+    const books = await this.getBooks();
+    const booksMapped = books.map((book) => {
+      return {
+        _id: book._id,
+        title: book.title,
+        isbn: book.isbn,
+        pages: book.pages,
+        authors: book.authors,
+      };
+    });
+    const fields = ['_id', 'title', 'isbn', 'pages', 'authors'];
+    const transforms = [tf.unwind({ paths: ['authors'] })];
+    const parser = new Parser({ fields, transforms });
+    const csv = parser.parse(booksMapped);
+    return csv;
   }
 }
