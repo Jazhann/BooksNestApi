@@ -1,4 +1,4 @@
-import { Injectable, Inject, HttpException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import * as bcrypt from 'bcrypt';
@@ -6,6 +6,8 @@ import * as bcrypt from 'bcrypt';
 import { UserDTO } from 'src/user/DTOs/user.DTO';
 import { UserDAO } from 'src/user/DAO/user.DAO';
 import { Constants } from 'src/common/constants';
+
+import * as exception from 'src/common/helpers/exception.helper';
 
 @Injectable()
 export class UserService {
@@ -20,7 +22,7 @@ export class UserService {
     const checkUser = await this.userDAO.getUser(newUser.email.toLocaleLowerCase());
 
     if (checkUser != null) {
-      throw new HttpException({ message: Constants.userAlreadyExists }, Constants.httpStatus403);
+      exception.send(Constants.userAlreadyExists, Constants.httpStatus403);
     } else {
       newUser.password = await bcrypt.hash(newUser.password, Constants.rounds);
       return await this.userDAO.createUser(newUser);
@@ -38,7 +40,7 @@ export class UserService {
     if (user) {
       return user;
     } else {
-      throw new HttpException({ message: Constants.userNotFound }, Constants.httpStatus404);
+      exception.send(Constants.userNotFound, Constants.httpStatus404);
     }
   }
 
@@ -63,7 +65,7 @@ export class UserService {
     });
 
     if (checkUserEmail != null && checkUserEmail._id.toString() !== oldUser._id.toString()) {
-      throw new HttpException({ message: Constants.userWithThisEmail }, Constants.httpStatus200);
+      exception.send(Constants.userWithThisEmail, Constants.httpStatus403);
     } else {
       if (user.password !== null) {
         if (oldUser.password !== user.password) {
@@ -77,9 +79,9 @@ export class UserService {
       if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
         return { message: Constants.userUpdated };
       } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
-        throw new HttpException({ message: Constants.userNotUpdated }, Constants.httpStatus202);
+        exception.send(Constants.userNotUpdated, Constants.httpStatus202);
       } else {
-        throw new HttpException({ message: Constants.userNotFound }, Constants.httpStatus404);
+        exception.send(Constants.userNotFound, Constants.httpStatus404);
       }
     }
   }
@@ -95,7 +97,7 @@ export class UserService {
     if (deletedInfo.deletedCount === 1) {
       return { message: Constants.userDeleted };
     } else {
-      throw new HttpException({ message: Constants.userNotFound }, Constants.httpStatus404);
+      exception.send(Constants.userNotFound, Constants.httpStatus404);
     }
   }
 }

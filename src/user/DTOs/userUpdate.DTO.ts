@@ -1,7 +1,13 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { ObjectId } from 'mongoose';
 
 export class UserDTO {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty()
+  _id: ObjectId;
+
   @IsNotEmpty()
   @IsString()
   @ApiProperty()

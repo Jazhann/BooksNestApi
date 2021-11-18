@@ -20,6 +20,10 @@ export class UserController {
     description: 'User created successful',
   })
   @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  @ApiResponse({
     status: 401,
     description: 'Unauthorized',
   })
@@ -44,6 +48,10 @@ export class UserController {
     type: UserDTO,
     status: 200,
     description: 'User founded',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
   })
   @ApiResponse({
     status: 401,
@@ -71,6 +79,10 @@ export class UserController {
     description: 'Users founded',
   })
   @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  @ApiResponse({
     status: 401,
     description: 'Unauthorized',
   })
@@ -92,6 +104,10 @@ export class UserController {
   @ApiResponse({
     status: 202,
     description: 'User not updated',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
   })
   @ApiResponse({
     status: 401,
@@ -119,6 +135,10 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: 'User deleted',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
   })
   @ApiResponse({
     status: 401,

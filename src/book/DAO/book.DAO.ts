@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 
 import { Book } from 'src/book/interfaces/book.interface';
 import { BookDTO } from '../DTOs/book.DTO';
+import { BookUpdateDTO } from '../DTOs/bookUpdate.DTO';
 
 @Injectable()
 export class BookDAO {
@@ -22,7 +23,7 @@ export class BookDAO {
     return this.bookModel.find(params).exec();
   }
 
-  async updateBook(book: BookDTO): Promise<any> {
+  async updateBook(book: BookUpdateDTO): Promise<any> {
     return this.bookModel.updateOne({ _id: book._id }, book);
   }
 

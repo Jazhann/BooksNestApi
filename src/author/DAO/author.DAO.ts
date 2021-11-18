@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 
 import { AuthorDTO } from 'src/author/DTOs/author.DTO';
 import { Author } from 'src/author/interfaces/author.interface';
+import { AuthorUpdateDTO } from '../DTOs/authorUpdate.DTO';
 
 @Injectable()
 export class AuthorDAO {
@@ -22,7 +23,7 @@ export class AuthorDAO {
     return this.authorModel.find(params).exec();
   }
 
-  async updateAuthor(author: AuthorDTO): Promise<any> {
+  async updateAuthor(author: AuthorUpdateDTO): Promise<any> {
     return this.authorModel.updateOne({ _id: author._id }, author);
   }
 

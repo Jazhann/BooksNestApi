@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ObjectId } from 'mongoose';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { BookDTO } from 'src/book/DTOs/book.DTO';
 
 export class AuthorDTO {
-  @ApiProperty()
-  _id: ObjectId;
+  @IsNotEmpty()
+  @IsString()
   @ApiProperty()
   name: string;
+
+  @IsString({ each: true })
   @ApiProperty()
-  books: BookDTO[];
+  books: BookDTO[] = [];
 }

@@ -4,6 +4,7 @@ import { BookDTO } from 'src/book/DTOs/book.DTO';
 import { BookService } from 'src/book/book.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { BookUpdateDTO } from './DTOs/bookUpdate.DTO';
 
 @ApiTags('books')
 @ApiBearerAuth()
@@ -19,6 +20,10 @@ export class BookController {
     type: BookDTO,
     status: 201,
     description: 'Book created successful',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
   })
   @ApiResponse({
     status: 401,
@@ -48,6 +53,10 @@ export class BookController {
     description: 'Book founded',
   })
   @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  @ApiResponse({
     status: 401,
     description: 'Unauthorized',
   })
@@ -57,7 +66,7 @@ export class BookController {
   })
   @ApiParam({ name: 'id', type: 'string', description: 'Book id' })
   @UseGuards(AuthGuard('jwt'))
-  @Get('getbook/:id')
+  @Get('getone/:id')
   async getBook(@Param('id') id: string) {
     return await this.bookService.getBook(id);
   }
@@ -70,6 +79,10 @@ export class BookController {
     type: [BookDTO],
     status: 200,
     description: 'Books founded',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
   })
   @ApiResponse({
     status: 401,
@@ -94,6 +107,10 @@ export class BookController {
     description: 'Book not updated',
   })
   @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  @ApiResponse({
     status: 401,
     description: 'Unauthorized',
   })
@@ -107,7 +124,7 @@ export class BookController {
   })
   @UseGuards(AuthGuard('jwt'))
   @Put()
-  async updateBook(@Body() book: BookDTO) {
+  async updateBook(@Body() book: BookUpdateDTO) {
     return await this.bookService.updateBook(book);
   }
 
@@ -118,6 +135,10 @@ export class BookController {
   @ApiResponse({
     status: 200,
     description: 'Book deleted',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
   })
   @ApiResponse({
     status: 401,
@@ -140,7 +161,11 @@ export class BookController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Csv genereted',
+    description: 'Csv generated',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
   })
   @ApiResponse({
     status: 401,

@@ -1,4 +1,4 @@
-import { Injectable, Inject, HttpException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Parser, transforms as tf } from 'json2csv';
 
@@ -6,6 +6,8 @@ import { BookDTO } from 'src/book/DTOs/book.DTO';
 import { BookDAO } from 'src/book/DAO/book.DAO';
 import { Constants } from 'src/common/constants';
 import { AuthorDAO } from 'src/author/DAO/author.DAO';
+import { BookUpdateDTO } from './DTOs/bookUpdate.DTO';
+import * as exception from 'src/common/helpers/exception.helper';
 
 @Injectable()
 export class BookService {
@@ -25,7 +27,7 @@ export class BookService {
     });
 
     if (checkBook != null) {
-      throw new HttpException({ message: Constants.bookAlreadyExists }, Constants.httpStatus403);
+      exception.send(Constants.bookAlreadyExists, Constants.httpStatus403);
     } else {
       const book = await this.bookDAO.createBook(newBook);
       for (const author of book.authors) {
@@ -48,7 +50,7 @@ export class BookService {
     if (book) {
       return book;
     } else {
-      throw new HttpException({ message: Constants.bookNotFound }, Constants.httpStatus404);
+      exception.send(Constants.bookNotFound, Constants.httpStatus404);
     }
   }
 
@@ -65,7 +67,7 @@ export class BookService {
    * @param book object
    * @returns update log
    */
-  async updateBook(book: BookDTO) {
+  async updateBook(book: BookUpdateDTO) {
     const oldBook = await this.bookDAO.getBook({ _id: book._id });
     const differentsArrays = JSON.stringify(oldBook.authors.sort()) !== JSON.stringify(book.authors.sort());
 
@@ -80,9 +82,9 @@ export class BookService {
     if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
       return { message: Constants.bookUpdated };
     } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
-      throw new HttpException({ message: Constants.bookNotUpdated }, Constants.httpStatus202);
+      exception.send(Constants.bookNotUpdated, Constants.httpStatus202);
     } else {
-      throw new HttpException({ message: Constants.bookNotFound }, Constants.httpStatus404);
+      exception.send(Constants.bookNotFound, Constants.httpStatus404);
     }
   }
 
@@ -91,7 +93,7 @@ export class BookService {
    * @param book book to update
    * @param oldBook book saved
    */
-  private async updateAuthors(book: BookDTO, oldBook) {
+  private async updateAuthors(book: BookUpdateDTO, oldBook) {
     for (const author of book.authors) {
       const savedAuthor = await this.authorDAO.getAuthor({ _id: author });
 
@@ -124,7 +126,7 @@ export class BookService {
    * @param book book to update
    * @param oldBook book saved
    */
-  private async updateAuthorsArrayEmpty(book: BookDTO, oldBook) {
+  private async updateAuthorsArrayEmpty(book: BookUpdateDTO, oldBook) {
     for (const author of oldBook.authors) {
       const savedAuthor = await this.authorDAO.getAuthor({ _id: author });
       const updatedAuthor = {
@@ -156,7 +158,7 @@ export class BookService {
       }
       return { message: Constants.bookDeleted };
     } else {
-      throw new HttpException({ message: Constants.bookNotFound }, Constants.httpStatus404);
+      exception.send(Constants.bookNotFound, Constants.httpStatus404);
     }
   }
 

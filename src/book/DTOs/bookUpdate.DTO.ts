@@ -1,8 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AuthorDTO } from 'src/author/DTOs/author.DTO';
+import { ObjectId } from 'mongoose';
 import { IsString, IsNumber, IsNotEmpty, IsArray, ArrayMinSize } from 'class-validator';
+import { AuthorUpdateDTO } from 'src/author/DTOs/authorUpdate.DTO';
 
-export class BookDTO {
+export class BookUpdateDTO {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty()
+  _id: ObjectId;
+
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
@@ -17,7 +23,7 @@ export class BookDTO {
   @ArrayMinSize(1)
   @IsString({ each: true })
   @ApiProperty()
-  authors: AuthorDTO[] = [];
+  authors: AuthorUpdateDTO[] = [];
 
   @IsNotEmpty()
   @IsNumber()

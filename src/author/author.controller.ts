@@ -3,6 +3,7 @@ import { AuthorDTO } from 'src/author/DTOs/author.DTO';
 import { AuthorService } from 'src/author/author.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthorUpdateDTO } from './DTOs/authorUpdate.DTO';
 
 @ApiTags('authors')
 @ApiBearerAuth()
@@ -18,6 +19,10 @@ export class AuthorController {
     type: AuthorDTO,
     status: 201,
     description: 'Author created successful',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
   })
   @ApiResponse({
     status: 401,
@@ -47,6 +52,10 @@ export class AuthorController {
     description: 'Author founded',
   })
   @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  @ApiResponse({
     status: 401,
     description: 'Unauthorized',
   })
@@ -56,7 +65,7 @@ export class AuthorController {
   })
   @ApiParam({ name: 'id', type: 'string', description: 'Author id' })
   @UseGuards(AuthGuard('jwt'))
-  @Get('getauthor/:id')
+  @Get('getone/:id')
   async getAuthor(@Param('id') id: string) {
     return await this.authorService.getAuthor(id);
   }
@@ -69,6 +78,10 @@ export class AuthorController {
     type: [AuthorDTO],
     status: 200,
     description: 'Authors founded',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
   })
   @ApiResponse({
     status: 401,
@@ -93,6 +106,10 @@ export class AuthorController {
     description: 'Author not updated',
   })
   @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  @ApiResponse({
     status: 401,
     description: 'Unauthorized',
   })
@@ -106,7 +123,7 @@ export class AuthorController {
   })
   @UseGuards(AuthGuard('jwt'))
   @Put()
-  async updateAuthor(@Body() author: AuthorDTO) {
+  async updateAuthor(@Body() author: AuthorUpdateDTO) {
     return await this.authorService.updateAuthor(author);
   }
 
@@ -117,6 +134,10 @@ export class AuthorController {
   @ApiResponse({
     status: 200,
     description: 'Author deleted',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
   })
   @ApiResponse({
     status: 401,
@@ -140,6 +161,10 @@ export class AuthorController {
   @ApiResponse({
     status: 200,
     description: 'Csv genereted',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
   })
   @ApiResponse({
     status: 401,

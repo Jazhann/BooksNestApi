@@ -6,6 +6,8 @@ import { AuthorDTO } from 'src/author/DTOs/author.DTO';
 import { AuthorDAO } from 'src/author/DAO/author.DAO';
 import { Constants } from 'src/common/constants';
 import { BookDAO } from 'src/book/DAO/book.DAO';
+import { AuthorUpdateDTO } from './DTOs/authorUpdate.DTO';
+import * as exception from 'src/common/helpers/exception.helper';
 
 @Injectable()
 export class AuthorService {
@@ -25,7 +27,7 @@ export class AuthorService {
     });
 
     if (checkAuthor != null) {
-      throw new HttpException({ message: Constants.authorAlreadyExists }, Constants.httpStatus403);
+      exception.send(Constants.authorAlreadyExists, Constants.httpStatus403);
     } else {
       return await this.authorDAO.createAuthor(newAuthor);
     }
@@ -44,7 +46,7 @@ export class AuthorService {
     if (author) {
       return author;
     } else {
-      throw new HttpException({ message: Constants.authorNotFound }, Constants.httpStatus404);
+      exception.send(Constants.authorNotFound, Constants.httpStatus404);
     }
   }
 
@@ -61,7 +63,7 @@ export class AuthorService {
    * @param author object
    * @returns update log
    */
-  async updateAuthor(author: AuthorDTO) {
+  async updateAuthor(author: AuthorUpdateDTO) {
     const oldAuthor = await this.authorDAO.getAuthor({ _id: author._id });
     const differentsArrays = JSON.stringify(oldAuthor.books.sort()) !== JSON.stringify(author.books.sort());
 
@@ -75,9 +77,9 @@ export class AuthorService {
     if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
       return { message: Constants.authorUpdated };
     } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
-      throw new HttpException({ message: Constants.authorNotUpdated }, Constants.httpStatus202);
+      exception.send(Constants.authorNotUpdated, Constants.httpStatus202);
     } else {
-      throw new HttpException({ message: Constants.authorNotFound }, Constants.httpStatus404);
+      exception.send(Constants.authorNotFound, Constants.httpStatus404);
     }
   }
 
@@ -86,7 +88,7 @@ export class AuthorService {
    * @param author author to update
    * @param oldAuthor author saved
    */
-  private async updateBooks(author: AuthorDTO, oldAuthor) {
+  private async updateBooks(author: AuthorUpdateDTO, oldAuthor) {
     for (const book of author.books) {
       const savedBook = await this.bookDAO.getBook({ _id: book });
 
@@ -121,7 +123,7 @@ export class AuthorService {
    * @param author author to update
    * @param oldAuthor author saved
    */
-  private async updateBooksEmptyArray(author: AuthorDTO, oldAuthor) {
+  private async updateBooksEmptyArray(author: AuthorUpdateDTO, oldAuthor) {
     for (const book of oldAuthor.books) {
       const savedBook = await this.bookDAO.getBook({ _id: book });
       const updatedBook = {
@@ -150,7 +152,7 @@ export class AuthorService {
       }
       return { message: Constants.authorDeleted };
     } else {
-      throw new HttpException({ message: Constants.authorNotFound }, Constants.httpStatus404);
+      exception.send(Constants.authorNotFound, Constants.httpStatus404);
     }
   }
 
