@@ -19,7 +19,7 @@ import { BookModule } from './book/book.module';
     UserDAOModule,
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        uri: 'mongodb+srv://weedadmin:pantalonesdecolores@cluster0.e08ym.mongodb.net/weed?retryWrites=true&w=majority',
+        uri: `${process.env.MONGODB_URI}`,
       }),
     }),
   ],
