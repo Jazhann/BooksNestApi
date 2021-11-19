@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { AuthorDTO } from 'src/author/DTOs/author.DTO';
-import { Author } from 'src/author/interfaces/author.interface';
+import { AuthorDTO } from '../DTOs/author.DTO';
+import { Author } from '../Interfaces/author.interface';
 import { AuthorUpdateDTO } from '../DTOs/authorUpdate.DTO';
 
 @Injectable()

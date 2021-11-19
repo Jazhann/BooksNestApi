@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { BookSchema } from 'src/book/models/book.model';
-import { BookDAO } from 'src/book/DAO/book.DAO';
+import { BookSchema } from '../models/book.model';
+import { BookDAO } from '../DAO/book.DAO';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'Book', schema: BookSchema }])],

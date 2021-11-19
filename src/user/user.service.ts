@@ -1,18 +1,18 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import * as bcrypt from 'bcrypt';
 
-import { UserDTO } from 'src/user/DTOs/user.DTO';
-import { UserDAO } from 'src/user/DAO/user.DAO';
-import { Constants } from 'src/common/constants';
+import { UserDTO } from '../user/DTOs/user.DTO';
+import { UserDAO } from '../user/DAO/user.DAO';
+import { Constants } from '../common/constants';
 
-import * as exception from 'src/common/helpers/exception.helper';
+import * as exception from '../common/helpers/exception.helper';
 import { UserUpdateDTO } from './DTOs/userUpdate.DTO';
 
 @Injectable()
 export class UserService {
-  constructor(@Inject('UserDAO') private readonly userDAO: UserDAO) {}
+  constructor(@Inject('UserDAO') private readonly userDAO: UserDAO, private readonly logger: Logger) {}
 
   /**
    * It creates a new User
@@ -23,10 +23,13 @@ export class UserService {
     const checkUser = await this.userDAO.getUser(newUser.email.toLocaleLowerCase());
 
     if (checkUser != null) {
+      this.logger.error(Constants.userAlreadyExists, UserService.name);
       exception.send(Constants.userAlreadyExists, Constants.httpStatus403);
     } else {
       newUser.password = await bcrypt.hash(newUser.password, Constants.rounds);
-      return await this.userDAO.createUser(newUser);
+      const user = await this.userDAO.createUser(newUser);
+      this.logger.log('User created successfully: ' + JSON.stringify(user), UserService.name);
+      return user;
     }
   }
 
@@ -39,8 +42,10 @@ export class UserService {
     const user = await this.userDAO.getUser({ _id: new Types.ObjectId(id) });
 
     if (user) {
+      this.logger.log('User got successfully: ' + JSON.stringify(user), UserService.name);
       return user;
     } else {
+      this.logger.error(Constants.userNotFound, UserService.name);
       exception.send(Constants.userNotFound, Constants.httpStatus404);
     }
   }
@@ -50,6 +55,7 @@ export class UserService {
    * @returns user object array
    */
   async getUsers() {
+    this.logger.log('User gots successfully', UserService.name);
     return await this.userDAO.getUsers({});
   }
 
@@ -65,6 +71,7 @@ export class UserService {
     });
 
     if (checkUserEmail != null && checkUserEmail._id.toString() !== oldUser._id.toString()) {
+      this.logger.error(Constants.userWithThisEmail, UserService.name);
       exception.send(Constants.userWithThisEmail, Constants.httpStatus403);
     } else {
       if (user.password !== null) {
@@ -77,10 +84,13 @@ export class UserService {
 
       const updatedInfo = await this.userDAO.updateUser(user);
       if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
+        this.logger.log('User updated successfully', UserService.name);
         return { message: Constants.userUpdated };
       } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
+        this.logger.error(Constants.userNotUpdated, UserService.name);
         exception.send(Constants.userNotUpdated, Constants.httpStatus202);
       } else {
+        this.logger.error(Constants.userNotFound, UserService.name);
         exception.send(Constants.userNotFound, Constants.httpStatus404);
       }
     }
@@ -95,8 +105,10 @@ export class UserService {
     const deletedInfo = await this.userDAO.deleteUser(new Types.ObjectId(id));
 
     if (deletedInfo.deletedCount === 1) {
+      this.logger.log('User deleted successfully', UserService.name);
       return { message: Constants.userDeleted };
     } else {
+      this.logger.error(Constants.userNotFound, UserService.name);
       exception.send(Constants.userNotFound, Constants.httpStatus404);
     }
   }

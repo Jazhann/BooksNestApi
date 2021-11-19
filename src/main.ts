@@ -1,13 +1,31 @@
 import { NestFactory } from '@nestjs/core';
 import * as env from '../config/env';
 import { AppModule } from './app.module';
+import { utilities as nestWinstonModuleUtilities, WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from './common/pipes/validation.pipe';
 
 async function bootstrap() {
   await env.loadEnv();
-  const app = await NestFactory.create(AppModule);
+
+  const transports = [];
+  if (process.env.NODE_ENV !== 'prod') {
+    transports.push(
+      new winston.transports.Console({
+        format: winston.format.combine(winston.format.timestamp(), nestWinstonModuleUtilities.format.nestLike()),
+      }),
+    );
+  }
+  transports.push(new winston.transports.File({ dirname: './logs/', filename: 'error.log', level: 'error' }));
+  transports.push(new winston.transports.File({ dirname: './logs/', filename: 'combined.log' }));
+
+  const app = await NestFactory.create(AppModule, {
+    logger: WinstonModule.createLogger({ transports }),
+  });
+
   app.useGlobalPipes(new ValidationPipe());
+
   const options = {
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -27,6 +45,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
   await app.listen(process.env.PORT || 8080);
 }
 bootstrap();

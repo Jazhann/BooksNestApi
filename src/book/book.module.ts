@@ -1,14 +1,14 @@
-import { Module } from '@nestjs/common';
-import { AuthorDAOModule } from 'src/author/DAO/authorDAO.module';
+import { Logger, Module } from '@nestjs/common';
+import { AuthorDAOModule } from '../author/DAO/authorDAO.module';
 
-import { BookController } from 'src/book/book.controller';
+import { BookController } from '../book/book.controller';
 
-import { BookService } from 'src/book/book.service';
+import { BookService } from '../book/book.service';
 import { BookDAOModule } from './DAO/bookDAO.module';
 
 @Module({
   imports: [BookDAOModule, AuthorDAOModule],
   controllers: [BookController],
-  providers: [BookService],
+  providers: [BookService, Logger],
 })
 export class BookModule {}

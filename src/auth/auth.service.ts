@@ -1,10 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserDAO } from 'src/user/DAO/user.DAO';
+import { UserDAO } from '../user/DAO/user.DAO';
 
 import * as bcrypt from 'bcrypt';
 import * as _ from 'lodash';
-import { UserTokenDTO } from 'src/user/DTOs/userToken.DTO';
+import { UserTokenDTO } from '../user/DTOs/userToken.DTO';
 
 @Injectable()
 export class AuthService {

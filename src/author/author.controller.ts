@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Response, UseGuards } from '@nestjs/common';
-import { AuthorDTO } from 'src/author/DTOs/author.DTO';
-import { AuthorService } from 'src/author/author.service';
+import { Controller, Get, Post, Put, Delete, Body, Param, Response, UseGuards, Logger } from '@nestjs/common';
+import { AuthorDTO } from '../author/DTOs/author.DTO';
+import { AuthorService } from '../author/author.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthorUpdateDTO } from './DTOs/authorUpdate.DTO';
@@ -9,7 +9,7 @@ import { AuthorUpdateDTO } from './DTOs/authorUpdate.DTO';
 @ApiBearerAuth()
 @Controller('api/authors')
 export class AuthorController {
-  constructor(private readonly authorService: AuthorService) {}
+  constructor(private readonly authorService: AuthorService, private readonly logger: Logger) {}
 
   @ApiOperation({
     summary: 'Create an Author',
@@ -39,6 +39,7 @@ export class AuthorController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async createAuthor(@Body() newAuthor: AuthorDTO) {
+    this.logger.log('Creating author with data: ' + JSON.stringify(newAuthor), AuthorController.name);
     return await this.authorService.createAuthor(newAuthor);
   }
 
@@ -67,6 +68,7 @@ export class AuthorController {
   @UseGuards(AuthGuard('jwt'))
   @Get('getone/:id')
   async getAuthor(@Param('id') id: string) {
+    this.logger.log('Getting author with id: ' + id, AuthorController.name);
     return await this.authorService.getAuthor(id);
   }
 
@@ -90,6 +92,7 @@ export class AuthorController {
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async getAuthors() {
+    this.logger.log('Getting all authors', AuthorController.name);
     return await this.authorService.getAuthors();
   }
 
@@ -124,6 +127,7 @@ export class AuthorController {
   @UseGuards(AuthGuard('jwt'))
   @Put()
   async updateAuthor(@Body() author: AuthorUpdateDTO) {
+    this.logger.log('Updating author with data: ' + JSON.stringify(author), AuthorController.name);
     return await this.authorService.updateAuthor(author);
   }
 
@@ -151,6 +155,7 @@ export class AuthorController {
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async deleteAuthor(@Param('id') id: string) {
+    this.logger.log('Deleting author with id: ' + id, AuthorController.name);
     return await this.authorService.deleteAuthor(id);
   }
 
@@ -172,6 +177,7 @@ export class AuthorController {
   })
   @Get('getcsv')
   async export(@Response() res) {
+    this.logger.log('Getting authors csv', AuthorController.name);
     const csv = await this.authorService.getCsv();
     res.set('Content-Type', 'text/csv');
     res.attachment('authors.csv');

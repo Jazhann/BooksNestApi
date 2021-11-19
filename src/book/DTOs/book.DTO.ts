@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AuthorDTO } from 'src/author/DTOs/author.DTO';
+import { AuthorDTO } from '../../author/DTOs/author.DTO';
 import { IsString, IsNumber, IsNotEmpty, IsArray, ArrayMinSize } from 'class-validator';
 
 export class BookDTO {

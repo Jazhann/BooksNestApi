@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ObjectId } from 'mongoose';
-import { BookUpdateDTO } from 'src/book/DTOs/bookUpdate.DTO';
+import { BookUpdateDTO } from '../../book/DTOs/bookUpdate.DTO';
 
 export class AuthorUpdateDTO {
   @IsNotEmpty()

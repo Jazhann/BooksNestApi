@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Response } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Response, Logger } from '@nestjs/common';
 
-import { BookDTO } from 'src/book/DTOs/book.DTO';
-import { BookService } from 'src/book/book.service';
+import { BookDTO } from '../book/DTOs/book.DTO';
+import { BookService } from '../book/book.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BookUpdateDTO } from './DTOs/bookUpdate.DTO';
@@ -10,7 +10,7 @@ import { BookUpdateDTO } from './DTOs/bookUpdate.DTO';
 @ApiBearerAuth()
 @Controller('api/books')
 export class BookController {
-  constructor(private readonly bookService: BookService) {}
+  constructor(private readonly bookService: BookService, private readonly logger: Logger) {}
 
   @ApiOperation({
     summary: 'Create a Book',
@@ -40,6 +40,7 @@ export class BookController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async createBook(@Body() newBook: BookDTO) {
+    this.logger.log('Creating book with data: ' + JSON.stringify(newBook), BookController.name);
     return await this.bookService.createBook(newBook);
   }
 
@@ -68,6 +69,7 @@ export class BookController {
   @UseGuards(AuthGuard('jwt'))
   @Get('getone/:id')
   async getBook(@Param('id') id: string) {
+    this.logger.log('Getting book with id: ' + id, BookController.name);
     return await this.bookService.getBook(id);
   }
 
@@ -91,6 +93,7 @@ export class BookController {
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async getBooks() {
+    this.logger.log('Getting all books', BookController.name);
     return await this.bookService.getBooks();
   }
 
@@ -125,6 +128,7 @@ export class BookController {
   @UseGuards(AuthGuard('jwt'))
   @Put()
   async updateBook(@Body() book: BookUpdateDTO) {
+    this.logger.log('Updating book with data: ' + JSON.stringify(book), BookController.name);
     return await this.bookService.updateBook(book);
   }
 
@@ -152,6 +156,7 @@ export class BookController {
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async deleteIser(@Param('id') id: string) {
+    this.logger.log('Deleting book with id: ' + id, BookController.name);
     return await this.bookService.deleteBook(id);
   }
 
@@ -173,6 +178,7 @@ export class BookController {
   })
   @Get('getcsv')
   async export(@Response() res) {
+    this.logger.log('Getting books csv', BookController.name);
     const csv = await this.bookService.getCsv();
     res.set('Content-Type', 'text/csv');
     res.attachment('authors.csv');

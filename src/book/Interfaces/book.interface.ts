@@ -1,5 +1,5 @@
 import { Document, ObjectId } from 'mongoose';
-import { Author } from 'src/author/interfaces/author.interface';
+import { Author } from '../../author/interfaces/author.interface';
 
 export interface Book extends Document {
   readonly _id: ObjectId;

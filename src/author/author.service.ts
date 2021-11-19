@@ -1,19 +1,20 @@
-import { Injectable, Inject, HttpException } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Parser, transforms as tf } from 'json2csv';
 
-import { AuthorDTO } from 'src/author/DTOs/author.DTO';
-import { AuthorDAO } from 'src/author/DAO/author.DAO';
-import { Constants } from 'src/common/constants';
-import { BookDAO } from 'src/book/DAO/book.DAO';
+import { AuthorDTO } from '../author/DTOs/author.DTO';
+import { AuthorDAO } from '../author/DAO/author.DAO';
+import { Constants } from '../common/constants';
+import { BookDAO } from '../book/DAO/book.DAO';
 import { AuthorUpdateDTO } from './DTOs/authorUpdate.DTO';
-import * as exception from 'src/common/helpers/exception.helper';
+import * as exception from '../common/helpers/exception.helper';
 
 @Injectable()
 export class AuthorService {
   constructor(
     @Inject('AuthorDAO') private readonly authorDAO: AuthorDAO,
     @Inject('BookDAO') private readonly bookDAO: BookDAO,
+    private readonly logger: Logger,
   ) {}
 
   /**
@@ -27,9 +28,12 @@ export class AuthorService {
     });
 
     if (checkAuthor != null) {
+      this.logger.error(Constants.authorAlreadyExists, AuthorService.name);
       exception.send(Constants.authorAlreadyExists, Constants.httpStatus403);
     } else {
-      return await this.authorDAO.createAuthor(newAuthor);
+      const author = await this.authorDAO.createAuthor(newAuthor);
+      this.logger.log('Author created successfully: ' + JSON.stringify(author), AuthorService.name);
+      return author;
     }
   }
 
@@ -44,8 +48,10 @@ export class AuthorService {
     });
 
     if (author) {
+      this.logger.log('Author got successfully: ' + JSON.stringify(author), AuthorService.name);
       return author;
     } else {
+      this.logger.error(Constants.authorNotFound, AuthorService.name);
       exception.send(Constants.authorNotFound, Constants.httpStatus404);
     }
   }
@@ -55,6 +61,7 @@ export class AuthorService {
    * @returns author object array
    */
   async getAuthors() {
+    this.logger.log('Authors got successfully', AuthorService.name);
     return await this.authorDAO.getAuthors({});
   }
 
@@ -75,10 +82,13 @@ export class AuthorService {
     const updatedInfo = await this.authorDAO.updateAuthor(author);
 
     if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
+      this.logger.log('Author updated successfully', AuthorService.name);
       return { message: Constants.authorUpdated };
     } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
+      this.logger.error(Constants.authorNotUpdated, AuthorService.name);
       exception.send(Constants.authorNotUpdated, Constants.httpStatus202);
     } else {
+      this.logger.error(Constants.authorNotFound, AuthorService.name);
       exception.send(Constants.authorNotFound, Constants.httpStatus404);
     }
   }
@@ -150,8 +160,10 @@ export class AuthorService {
       for (const book of books) {
         await this.bookDAO.deleteBook(book._id);
       }
+      this.logger.log('Authors deleted successfully', AuthorService.name);
       return { message: Constants.authorDeleted };
     } else {
+      this.logger.error(Constants.authorNotFound, AuthorService.name);
       exception.send(Constants.authorNotFound, Constants.httpStatus404);
     }
   }
@@ -173,6 +185,7 @@ export class AuthorService {
     const transforms = [tf.unwind({ paths: ['books'] })];
     const parser = new Parser({ fields, transforms });
     const csv = parser.parse(authorsMapped);
+    this.logger.log('Csv generated: ' + JSON.stringify(csv), AuthorService.name);
     return csv;
   }
 }

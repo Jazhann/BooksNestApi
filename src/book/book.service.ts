@@ -1,19 +1,20 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Parser, transforms as tf } from 'json2csv';
 
-import { BookDTO } from 'src/book/DTOs/book.DTO';
-import { BookDAO } from 'src/book/DAO/book.DAO';
-import { Constants } from 'src/common/constants';
-import { AuthorDAO } from 'src/author/DAO/author.DAO';
+import { BookDTO } from '../book/DTOs/book.DTO';
+import { BookDAO } from '../book/DAO/book.DAO';
+import { Constants } from '../common/constants';
+import { AuthorDAO } from '../author/DAO/author.DAO';
 import { BookUpdateDTO } from './DTOs/bookUpdate.DTO';
-import * as exception from 'src/common/helpers/exception.helper';
+import * as exception from '../common/helpers/exception.helper';
 
 @Injectable()
 export class BookService {
   constructor(
     @Inject('BookDAO') private readonly bookDAO: BookDAO,
     @Inject('AuthorDAO') private readonly authorDAO: AuthorDAO,
+    private readonly logger: Logger,
   ) {}
 
   /**
@@ -27,6 +28,7 @@ export class BookService {
     });
 
     if (checkBook != null) {
+      this.logger.error(Constants.bookAlreadyExists, BookService.name);
       exception.send(Constants.bookAlreadyExists, Constants.httpStatus403);
     } else {
       const book = await this.bookDAO.createBook(newBook);
@@ -35,6 +37,7 @@ export class BookService {
         updatedAuthor.books.push(book);
         await this.authorDAO.updateAuthor(updatedAuthor);
       }
+      this.logger.log('Book created successfully: ' + JSON.stringify(book), BookService.name);
       return book;
     }
   }
@@ -48,8 +51,10 @@ export class BookService {
     const book = await this.bookDAO.getBook({ _id: new Types.ObjectId(id) });
 
     if (book) {
+      this.logger.log('Book got successfully: ' + JSON.stringify(book), BookService.name);
       return book;
     } else {
+      this.logger.error(Constants.bookNotFound, BookService.name);
       exception.send(Constants.bookNotFound, Constants.httpStatus404);
     }
   }
@@ -59,6 +64,7 @@ export class BookService {
    * @returns book object array
    */
   async getBooks() {
+    this.logger.log('Books got successfully', BookService.name);
     return await this.bookDAO.getBooks({});
   }
 
@@ -80,10 +86,13 @@ export class BookService {
     const updatedInfo = await this.bookDAO.updateBook(book);
 
     if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
+      this.logger.log('Book updated successfully', BookService.name);
       return { message: Constants.bookUpdated };
     } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
+      this.logger.error(Constants.bookNotUpdated, BookService.name);
       exception.send(Constants.bookNotUpdated, Constants.httpStatus202);
     } else {
+      this.logger.error(Constants.bookNotFound, BookService.name);
       exception.send(Constants.bookNotFound, Constants.httpStatus404);
     }
   }
@@ -156,8 +165,10 @@ export class BookService {
         };
         this.authorDAO.updateAuthor(updatedAuthor);
       }
+      this.logger.log('Book deleted successfully', BookService.name);
       return { message: Constants.bookDeleted };
     } else {
+      this.logger.error(Constants.bookNotFound, BookService.name);
       exception.send(Constants.bookNotFound, Constants.httpStatus404);
     }
   }
@@ -181,6 +192,7 @@ export class BookService {
     const transforms = [tf.unwind({ paths: ['authors'] })];
     const parser = new Parser({ fields, transforms });
     const csv = parser.parse(booksMapped);
+    this.logger.log('Csv generated: ' + JSON.stringify(csv), BookService.name);
     return csv;
   }
 }

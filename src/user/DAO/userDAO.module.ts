@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { UserSchema } from 'src/user/models/user.model';
-import { UserDAO } from 'src/user/DAO/user.DAO';
+import { UserSchema } from '../models/user.model';
+import { UserDAO } from '../DAO/user.DAO';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema }])],

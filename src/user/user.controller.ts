@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Logger } from '@nestjs/common';
 
-import { UserDTO } from 'src/user/DTOs/user.DTO';
-import { UserService } from 'src/user/user.service';
+import { UserDTO } from '../user/DTOs/user.DTO';
+import { UserService } from '../user/user.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserUpdateDTO } from './DTOs/userUpdate.DTO';
@@ -9,7 +9,7 @@ import { UserUpdateDTO } from './DTOs/userUpdate.DTO';
 @ApiTags('users')
 @Controller('api/users')
 export class UserController {
-  constructor(private readonly usersService: UserService) {}
+  constructor(private readonly usersService: UserService, private readonly logger: Logger) {}
 
   @ApiOperation({
     summary: 'Create an User',
@@ -38,6 +38,7 @@ export class UserController {
   })
   @Post()
   async createUser(@Body() newUser: UserDTO) {
+    this.logger.log('Creating user with data: ' + JSON.stringify(newUser), UserController.name);
     return await this.usersService.createUser(newUser);
   }
 
@@ -67,6 +68,7 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async getUser(@Param('id') id: string) {
+    this.logger.log('Getting user with id: ' + id, UserController.name);
     return await this.usersService.getUser(id);
   }
 
@@ -91,6 +93,7 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async getUsers() {
+    this.logger.log('Getting all users', UserController.name);
     return await this.usersService.getUsers();
   }
 
@@ -126,6 +129,7 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Put()
   async updateUser(@Body() user: UserUpdateDTO) {
+    this.logger.log('Updating user with data: ' + JSON.stringify(user), UserController.name);
     return await this.usersService.updateUser(user);
   }
 
@@ -153,7 +157,8 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async deleteIser(@Param('id') id: string) {
+  async deleteUser(@Param('id') id: string) {
+    this.logger.log('Deleting user with id: ' + id);
     return await this.usersService.deleteUser(id);
   }
 }
