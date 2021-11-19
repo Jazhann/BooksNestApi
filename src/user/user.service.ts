@@ -23,8 +23,7 @@ export class UserService {
     const checkUser = await this.userDAO.getUser(newUser.email.toLocaleLowerCase());
 
     if (checkUser != null) {
-      this.logger.error(Constants.userAlreadyExists, UserService.name);
-      exception.send(Constants.userAlreadyExists, Constants.httpStatus403);
+      exception.send(Constants.userAlreadyExists, Constants.httpStatus403, UserService.name);
     } else {
       newUser.password = await bcrypt.hash(newUser.password, Constants.rounds);
       const user = await this.userDAO.createUser(newUser);
@@ -45,8 +44,7 @@ export class UserService {
       this.logger.log('User got successfully: ' + JSON.stringify(user), UserService.name);
       return user;
     } else {
-      this.logger.error(Constants.userNotFound, UserService.name);
-      exception.send(Constants.userNotFound, Constants.httpStatus404);
+      exception.send(Constants.userNotFound, Constants.httpStatus404, UserService.name);
     }
   }
 
@@ -71,8 +69,7 @@ export class UserService {
     });
 
     if (checkUserEmail != null && checkUserEmail._id.toString() !== oldUser._id.toString()) {
-      this.logger.error(Constants.userWithThisEmail, UserService.name);
-      exception.send(Constants.userWithThisEmail, Constants.httpStatus403);
+      exception.send(Constants.userWithThisEmail, Constants.httpStatus403, UserService.name);
     } else {
       if (user.password !== null) {
         if (oldUser.password !== user.password) {
@@ -87,11 +84,9 @@ export class UserService {
         this.logger.log('User updated successfully', UserService.name);
         return { message: Constants.userUpdated };
       } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
-        this.logger.error(Constants.userNotUpdated, UserService.name);
-        exception.send(Constants.userNotUpdated, Constants.httpStatus202);
+        exception.send(Constants.userNotUpdated, Constants.httpStatus202, UserService.name);
       } else {
-        this.logger.error(Constants.userNotFound, UserService.name);
-        exception.send(Constants.userNotFound, Constants.httpStatus404);
+        exception.send(Constants.userNotFound, Constants.httpStatus404, UserService.name);
       }
     }
   }
@@ -108,8 +103,7 @@ export class UserService {
       this.logger.log('User deleted successfully', UserService.name);
       return { message: Constants.userDeleted };
     } else {
-      this.logger.error(Constants.userNotFound, UserService.name);
-      exception.send(Constants.userNotFound, Constants.httpStatus404);
+      exception.send(Constants.userNotFound, Constants.httpStatus404, UserService.name);
     }
   }
 }

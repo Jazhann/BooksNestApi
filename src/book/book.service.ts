@@ -28,8 +28,7 @@ export class BookService {
     });
 
     if (checkBook != null) {
-      this.logger.error(Constants.bookAlreadyExists, BookService.name);
-      exception.send(Constants.bookAlreadyExists, Constants.httpStatus403);
+      exception.send(Constants.bookAlreadyExists, Constants.httpStatus403, BookService.name);
     } else {
       const book = await this.bookDAO.createBook(newBook);
       for (const author of book.authors) {
@@ -54,8 +53,7 @@ export class BookService {
       this.logger.log('Book got successfully: ' + JSON.stringify(book), BookService.name);
       return book;
     } else {
-      this.logger.error(Constants.bookNotFound, BookService.name);
-      exception.send(Constants.bookNotFound, Constants.httpStatus404);
+      exception.send(Constants.bookNotFound, Constants.httpStatus404, BookService.name);
     }
   }
 
@@ -89,11 +87,9 @@ export class BookService {
       this.logger.log('Book updated successfully', BookService.name);
       return { message: Constants.bookUpdated };
     } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
-      this.logger.error(Constants.bookNotUpdated, BookService.name);
-      exception.send(Constants.bookNotUpdated, Constants.httpStatus202);
+      exception.send(Constants.bookNotUpdated, Constants.httpStatus202, BookService.name);
     } else {
-      this.logger.error(Constants.bookNotFound, BookService.name);
-      exception.send(Constants.bookNotFound, Constants.httpStatus404);
+      exception.send(Constants.bookNotFound, Constants.httpStatus404, BookService.name);
     }
   }
 
@@ -168,8 +164,7 @@ export class BookService {
       this.logger.log('Book deleted successfully', BookService.name);
       return { message: Constants.bookDeleted };
     } else {
-      this.logger.error(Constants.bookNotFound, BookService.name);
-      exception.send(Constants.bookNotFound, Constants.httpStatus404);
+      exception.send(Constants.bookNotFound, Constants.httpStatus404, BookService.name);
     }
   }
 

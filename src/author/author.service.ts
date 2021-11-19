@@ -28,8 +28,7 @@ export class AuthorService {
     });
 
     if (checkAuthor != null) {
-      this.logger.error(Constants.authorAlreadyExists, AuthorService.name);
-      exception.send(Constants.authorAlreadyExists, Constants.httpStatus403);
+      exception.send(Constants.authorAlreadyExists, Constants.httpStatus403, AuthorService.name);
     } else {
       const author = await this.authorDAO.createAuthor(newAuthor);
       this.logger.log('Author created successfully: ' + JSON.stringify(author), AuthorService.name);
@@ -51,8 +50,7 @@ export class AuthorService {
       this.logger.log('Author got successfully: ' + JSON.stringify(author), AuthorService.name);
       return author;
     } else {
-      this.logger.error(Constants.authorNotFound, AuthorService.name);
-      exception.send(Constants.authorNotFound, Constants.httpStatus404);
+      exception.send(Constants.authorNotFound, Constants.httpStatus404, AuthorService.name);
     }
   }
 
@@ -85,11 +83,9 @@ export class AuthorService {
       this.logger.log('Author updated successfully', AuthorService.name);
       return { message: Constants.authorUpdated };
     } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
-      this.logger.error(Constants.authorNotUpdated, AuthorService.name);
-      exception.send(Constants.authorNotUpdated, Constants.httpStatus202);
+      exception.send(Constants.authorNotUpdated, Constants.httpStatus202, AuthorService.name);
     } else {
-      this.logger.error(Constants.authorNotFound, AuthorService.name);
-      exception.send(Constants.authorNotFound, Constants.httpStatus404);
+      exception.send(Constants.authorNotFound, Constants.httpStatus404, AuthorService.name);
     }
   }
 
@@ -163,8 +159,7 @@ export class AuthorService {
       this.logger.log('Authors deleted successfully', AuthorService.name);
       return { message: Constants.authorDeleted };
     } else {
-      this.logger.error(Constants.authorNotFound, AuthorService.name);
-      exception.send(Constants.authorNotFound, Constants.httpStatus404);
+      exception.send(Constants.authorNotFound, Constants.httpStatus404, AuthorService.name);
     }
   }
 
