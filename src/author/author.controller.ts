@@ -66,7 +66,7 @@ export class AuthorController {
   })
   @ApiParam({ name: 'id', type: 'string', description: 'Author id' })
   @UseGuards(AuthGuard('jwt'))
-  @Get('getone/:id')
+  @Get('get-one/:id')
   async getAuthor(@Param('id') id: string) {
     this.logger.log('Getting author with id: ' + id, AuthorController.name);
     return await this.authorService.getAuthor(id);
@@ -175,7 +175,7 @@ export class AuthorController {
     status: 401,
     description: 'Unauthorized',
   })
-  @Get('getcsv')
+  @Get('get-csv')
   async export(@Response() res) {
     this.logger.log('Getting authors csv', AuthorController.name);
     const csv = await this.authorService.getCsv();

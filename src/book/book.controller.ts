@@ -67,7 +67,7 @@ export class BookController {
   })
   @ApiParam({ name: 'id', type: 'string', description: 'Book id' })
   @UseGuards(AuthGuard('jwt'))
-  @Get('getone/:id')
+  @Get('get-one/:id')
   async getBook(@Param('id') id: string) {
     this.logger.log('Getting book with id: ' + id, BookController.name);
     return await this.bookService.getBook(id);
@@ -176,7 +176,7 @@ export class BookController {
     status: 401,
     description: 'Unauthorized',
   })
-  @Get('getcsv')
+  @Get('get-csv')
   async export(@Response() res) {
     this.logger.log('Getting books csv', BookController.name);
     const csv = await this.bookService.getCsv();
