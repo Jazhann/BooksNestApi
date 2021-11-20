@@ -7,7 +7,7 @@ import { BookDAO } from '../book/DAO/book.DAO';
 import { Constants } from '../common/constants';
 import { AuthorDAO } from '../author/DAO/author.DAO';
 import { BookUpdateDTO } from './DTOs/bookUpdate.DTO';
-import { AuthorUpdateDTO } from 'src/author/DTOs/authorUpdate.DTO';
+import { AuthorUpdateDTO } from '../author/DTOs/authorUpdate.DTO';
 import { UtilsService } from '../common/services/Utils.service';
 
 @Injectable()
@@ -31,17 +31,17 @@ export class BookService {
         isbn: newBook.isbn.toLocaleLowerCase(),
       });
     } catch (error) {
-      this.utils.send(error.message, Constants.httpStatus400, BookService.name);
+      this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
     }
 
     if (checkBook != null) {
-      this.utils.send(Constants.bookAlreadyExists, Constants.httpStatus403, BookService.name);
+      this.utils.sendException(Constants.bookAlreadyExists, Constants.httpStatus403, BookService.name);
     } else {
       let book;
       try {
         await this.bookDAO.createBook(newBook);
       } catch (error) {
-        this.utils.send(error.message, Constants.httpStatus400, BookService.name);
+        this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
       }
       for (const author of book.authors) {
         const updatedAuthor = await this.authorDAO.getAuthor({ _id: author });
@@ -63,14 +63,14 @@ export class BookService {
     try {
       await this.bookDAO.getBook({ _id: new Types.ObjectId(id) });
     } catch (error) {
-      this.utils.send(error.message, Constants.httpStatus400, BookService.name);
+      this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
     }
 
     if (book) {
       this.logger.log('Book got successfully: ' + JSON.stringify(book), BookService.name);
       return book;
     } else {
-      this.utils.send(Constants.bookNotFound, Constants.httpStatus404, BookService.name);
+      this.utils.sendException(Constants.bookNotFound, Constants.httpStatus404, BookService.name);
     }
   }
 
@@ -83,7 +83,7 @@ export class BookService {
     try {
       books = await this.bookDAO.getBooks({});
     } catch (error) {
-      this.utils.send(error.message, Constants.httpStatus400, BookService.name);
+      this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
     }
     this.logger.log('Books got successfully', BookService.name);
     return books;
@@ -99,7 +99,7 @@ export class BookService {
     try {
       oldBook = await this.bookDAO.getBook({ _id: book._id });
     } catch (error) {
-      this.utils.send(error.message, Constants.httpStatus400, BookService.name);
+      this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
     }
     const differentsArrays = JSON.stringify(oldBook.authors.sort()) !== JSON.stringify(book.authors.sort());
 
@@ -113,16 +113,16 @@ export class BookService {
     try {
       updatedInfo = await this.bookDAO.updateBook(book);
     } catch (error) {
-      this.utils.send(error.message, Constants.httpStatus400, BookService.name);
+      this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
     }
 
     if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
       this.logger.log('Book updated successfully', BookService.name);
       return { message: Constants.bookUpdated };
     } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
-      this.utils.send(Constants.bookNotUpdated, Constants.httpStatus202, BookService.name);
+      this.utils.sendException(Constants.bookNotUpdated, Constants.httpStatus202, BookService.name);
     } else {
-      this.utils.send(Constants.bookNotFound, Constants.httpStatus404, BookService.name);
+      this.utils.sendException(Constants.bookNotFound, Constants.httpStatus404, BookService.name);
     }
   }
 
@@ -137,7 +137,7 @@ export class BookService {
       try {
         savedAuthor = await this.authorDAO.getAuthor({ _id: author });
       } catch (error) {
-        this.utils.send(error.message, Constants.httpStatus400, BookService.name);
+        this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
       }
 
       let books = savedAuthor.books;
@@ -163,7 +163,7 @@ export class BookService {
       try {
         await this.authorDAO.updateAuthor(updatedAuthor);
       } catch (error) {
-        this.utils.send(error.message, Constants.httpStatus400, BookService.name);
+        this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
       }
     }
   }
@@ -184,7 +184,7 @@ export class BookService {
       try {
         await this.authorDAO.updateAuthor(updatedAuthor);
       } catch (error) {
-        this.utils.send(error.message, Constants.httpStatus400, BookService.name);
+        this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
       }
     }
   }
@@ -199,7 +199,7 @@ export class BookService {
     try {
       deletedInfo = await this.bookDAO.deleteBook(new Types.ObjectId(id));
     } catch (error) {
-      this.utils.send(error.message, Constants.httpStatus400, BookService.name);
+      this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
     }
 
     if (deletedInfo.deletedCount === 1) {
@@ -215,7 +215,7 @@ export class BookService {
       this.logger.log('Book deleted successfully', BookService.name);
       return { message: Constants.bookDeleted };
     } else {
-      this.utils.send(Constants.bookNotFound, Constants.httpStatus404, BookService.name);
+      this.utils.sendException(Constants.bookNotFound, Constants.httpStatus404, BookService.name);
     }
   }
 
