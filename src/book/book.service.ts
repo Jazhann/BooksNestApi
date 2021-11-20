@@ -25,11 +25,31 @@ export class BookService {
    * @returns new book object created
    */
   async createBook(newBook: BookDTO) {
+    await this.checkBook(newBook);
+    let book;
+    try {
+      await this.bookDAO.createBook(newBook);
+    } catch (error) {
+      this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
+    }
+    for (const author of book.authors) {
+      const updatedAuthor = await this.authorDAO.getAuthor({ _id: author });
+      updatedAuthor.books.push(book);
+      await this.authorDAO.updateAuthor(updatedAuthor);
+    }
+    this.logger.log('Book created successfully: ' + JSON.stringify(book), BookService.name);
+    return book;
+  }
+
+  /**
+   * It check if book isbn is already used
+   * @param book object book
+   * @returns
+   */
+  private async checkBook(book) {
     let checkBook;
     try {
-      checkBook = await this.bookDAO.getBook({
-        isbn: newBook.isbn.toLocaleLowerCase(),
-      });
+      checkBook = await this.bookDAO.getBook({ isbn: book.isbn });
     } catch (error) {
       this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
     }
@@ -37,19 +57,7 @@ export class BookService {
     if (checkBook != null) {
       this.utils.sendException(Constants.bookAlreadyExists, Constants.httpStatus403, BookService.name);
     } else {
-      let book;
-      try {
-        await this.bookDAO.createBook(newBook);
-      } catch (error) {
-        this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
-      }
-      for (const author of book.authors) {
-        const updatedAuthor = await this.authorDAO.getAuthor({ _id: author });
-        updatedAuthor.books.push(book);
-        await this.authorDAO.updateAuthor(updatedAuthor);
-      }
-      this.logger.log('Book created successfully: ' + JSON.stringify(book), BookService.name);
-      return book;
+      return;
     }
   }
 
@@ -101,6 +109,11 @@ export class BookService {
     } catch (error) {
       this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
     }
+
+    if (oldBook.isbn !== book.isbn) {
+      await this.checkBook(book);
+    }
+
     const differentsArrays = JSON.stringify(oldBook.authors.sort()) !== JSON.stringify(book.authors.sort());
 
     if (differentsArrays && book.authors.length > 0) {

@@ -7,10 +7,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from './common/pipes/validation.pipe';
 
 async function bootstrap() {
-  const ENV = process.env.NODE_ENV;
-  if (ENV === 'dev' || ENV === 'prod') {
-    await env.loadEnv();
-  }
+  await env.loadEnv();
 
   const transports = [];
   if (process.env.NODE_ENV !== 'prod') {

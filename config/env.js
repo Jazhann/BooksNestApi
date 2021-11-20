@@ -2,14 +2,20 @@
 var fs = require('fs');
 
 async function loadEnv() {
-  const envFileName = process.env.NODE_ENV;
+  const envFileName = process.env.NODE_ENV.trim();
   const envFilePath = './config/' + envFileName + '.env';
-  const envFile = await readFile(envFilePath);
+  let envFile;
+  try{
+    envFile = await readFile(envFilePath);
+  } catch (error) {
+    console.error(`File ${envFile}}.env not found in directory ./config`);
+    return;
+  }
   const envLines = envFile.split('\n');
   for (let i = 0; i < envLines.length; i++) {
     let [key, ...value] = envLines[i].split('=');
     value = value.join('=');
-    process.env[key] = value;
+    process.env[key] = value.trim();
   }
 }
 

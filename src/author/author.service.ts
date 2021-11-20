@@ -25,25 +25,14 @@ export class AuthorService {
    * @returns new author object created
    */
   async createAuthor(newAuthor: AuthorDTO) {
-    let checkAuthor;
+    let author;
     try {
-      checkAuthor = await this.authorDAO.getAuthor({ name: newAuthor.name });
+      author = await this.authorDAO.createAuthor(newAuthor);
     } catch (error) {
       this.utils.sendException(error.message, Constants.httpStatus400, AuthorService.name);
     }
-
-    if (checkAuthor != null) {
-      this.utils.sendException(Constants.authorAlreadyExists, Constants.httpStatus403, AuthorService.name);
-    } else {
-      let author;
-      try {
-        author = await this.authorDAO.createAuthor(newAuthor);
-      } catch (error) {
-        this.utils.sendException(error.message, Constants.httpStatus400, AuthorService.name);
-      }
-      this.logger.log('Author created successfully: ' + JSON.stringify(author), AuthorService.name);
-      return author;
-    }
+    this.logger.log('Author created successfully: ' + JSON.stringify(author), AuthorService.name);
+    return author;
   }
 
   /**
