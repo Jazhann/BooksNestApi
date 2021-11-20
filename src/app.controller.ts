@@ -30,7 +30,7 @@ export class AppController {
   @Post('login')
   @UseGuards(AuthGuard('local'))
   async login(@Request() req): Promise<UserTokenDTO> {
-    this.logger.log('Trying to do login');
+    this.logger.log('Trying to do login', AppController.name);
     return this.authService.login(req.user);
   }
 }

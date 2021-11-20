@@ -8,6 +8,7 @@ import { Constants } from '../common/constants';
 import { AuthorDAO } from '../author/DAO/author.DAO';
 import { BookUpdateDTO } from './DTOs/bookUpdate.DTO';
 import * as exception from '../common/helpers/exception.helper';
+import { AuthorUpdateDTO } from 'src/author/DTOs/authorUpdate.DTO';
 
 @Injectable()
 export class BookService {
@@ -23,14 +24,24 @@ export class BookService {
    * @returns new book object created
    */
   async createBook(newBook: BookDTO) {
-    const checkBook = await this.bookDAO.getBook({
-      isbn: newBook.isbn.toLocaleLowerCase(),
-    });
+    let checkBook;
+    try {
+      checkBook = await this.bookDAO.getBook({
+        isbn: newBook.isbn.toLocaleLowerCase(),
+      });
+    } catch (error) {
+      exception.send(error.message, Constants.httpStatus400, BookService.name);
+    }
 
     if (checkBook != null) {
       exception.send(Constants.bookAlreadyExists, Constants.httpStatus403, BookService.name);
     } else {
-      const book = await this.bookDAO.createBook(newBook);
+      let book;
+      try {
+        await this.bookDAO.createBook(newBook);
+      } catch (error) {
+        exception.send(error.message, Constants.httpStatus400, BookService.name);
+      }
       for (const author of book.authors) {
         const updatedAuthor = await this.authorDAO.getAuthor({ _id: author });
         updatedAuthor.books.push(book);
@@ -47,7 +58,12 @@ export class BookService {
    * @returns book object
    */
   async getBook(id: string) {
-    const book = await this.bookDAO.getBook({ _id: new Types.ObjectId(id) });
+    let book;
+    try {
+      await this.bookDAO.getBook({ _id: new Types.ObjectId(id) });
+    } catch (error) {
+      exception.send(error.message, Constants.httpStatus400, BookService.name);
+    }
 
     if (book) {
       this.logger.log('Book got successfully: ' + JSON.stringify(book), BookService.name);
@@ -62,8 +78,14 @@ export class BookService {
    * @returns book object array
    */
   async getBooks() {
+    let books;
+    try {
+      books = await this.bookDAO.getBooks({});
+    } catch (error) {
+      exception.send(error.message, Constants.httpStatus400, BookService.name);
+    }
     this.logger.log('Books got successfully', BookService.name);
-    return await this.bookDAO.getBooks({});
+    return books;
   }
 
   /**
@@ -72,7 +94,12 @@ export class BookService {
    * @returns update log
    */
   async updateBook(book: BookUpdateDTO) {
-    const oldBook = await this.bookDAO.getBook({ _id: book._id });
+    let oldBook;
+    try {
+      oldBook = await this.bookDAO.getBook({ _id: book._id });
+    } catch (error) {
+      exception.send(error.message, Constants.httpStatus400, BookService.name);
+    }
     const differentsArrays = JSON.stringify(oldBook.authors.sort()) !== JSON.stringify(book.authors.sort());
 
     if (differentsArrays && book.authors.length > 0) {
@@ -81,7 +108,12 @@ export class BookService {
       await this.updateAuthorsArrayEmpty(book, oldBook);
     }
 
-    const updatedInfo = await this.bookDAO.updateBook(book);
+    let updatedInfo;
+    try {
+      updatedInfo = await this.bookDAO.updateBook(book);
+    } catch (error) {
+      exception.send(error.message, Constants.httpStatus400, BookService.name);
+    }
 
     if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
       this.logger.log('Book updated successfully', BookService.name);
@@ -100,7 +132,12 @@ export class BookService {
    */
   private async updateAuthors(book: BookUpdateDTO, oldBook) {
     for (const author of book.authors) {
-      const savedAuthor = await this.authorDAO.getAuthor({ _id: author });
+      let savedAuthor: AuthorUpdateDTO;
+      try {
+        savedAuthor = await this.authorDAO.getAuthor({ _id: author });
+      } catch (error) {
+        exception.send(error.message, Constants.httpStatus400, BookService.name);
+      }
 
       let books = savedAuthor.books;
 
@@ -122,7 +159,11 @@ export class BookService {
         name: savedAuthor.name,
         books: [...new Set(books)],
       };
-      await this.authorDAO.updateAuthor(updatedAuthor);
+      try {
+        await this.authorDAO.updateAuthor(updatedAuthor);
+      } catch (error) {
+        exception.send(error.message, Constants.httpStatus400, BookService.name);
+      }
     }
   }
 
@@ -139,7 +180,11 @@ export class BookService {
         name: savedAuthor.name,
         books: savedAuthor.books.filter((bk) => bk.toString() !== book._id.toString()),
       };
-      await this.authorDAO.updateAuthor(updatedAuthor);
+      try {
+        await this.authorDAO.updateAuthor(updatedAuthor);
+      } catch (error) {
+        exception.send(error.message, Constants.httpStatus400, BookService.name);
+      }
     }
   }
 
@@ -149,7 +194,12 @@ export class BookService {
    * @returns deletion log
    */
   async deleteBook(id: string) {
-    const deletedInfo = await this.bookDAO.deleteBook(new Types.ObjectId(id));
+    let deletedInfo;
+    try {
+      deletedInfo = await this.bookDAO.deleteBook(new Types.ObjectId(id));
+    } catch (error) {
+      exception.send(error.message, Constants.httpStatus400, BookService.name);
+    }
 
     if (deletedInfo.deletedCount === 1) {
       const authors = await this.authorDAO.getAuthors({ books: id });

@@ -5,6 +5,7 @@ export class Constants {
   //HTTP STATUS
   public static httpStatus200 = 200;
   public static httpStatus202 = 202;
+  public static httpStatus400 = 400;
   public static httpStatus403 = 403;
   public static httpStatus404 = 404;
 

@@ -20,13 +20,23 @@ export class UserService {
    * @returns new user object created
    */
   async createUser(newUser: UserDTO) {
-    const checkUser = await this.userDAO.getUser(newUser.email.toLocaleLowerCase());
+    let checkUser;
+    try {
+      checkUser = await this.userDAO.getUser(newUser.email.toLocaleLowerCase());
+    } catch (error) {
+      exception.send(error.message, Constants.httpStatus400, UserService.name);
+    }
 
     if (checkUser != null) {
       exception.send(Constants.userAlreadyExists, Constants.httpStatus403, UserService.name);
     } else {
       newUser.password = await bcrypt.hash(newUser.password, Constants.rounds);
-      const user = await this.userDAO.createUser(newUser);
+      let user;
+      try {
+        user = await this.userDAO.createUser(newUser);
+      } catch (error) {
+        exception.send(error.message, Constants.httpStatus400, UserService.name);
+      }
       this.logger.log('User created successfully: ' + JSON.stringify(user), UserService.name);
       return user;
     }
@@ -38,7 +48,12 @@ export class UserService {
    * @returns user object
    */
   async getUser(id: string) {
-    const user = await this.userDAO.getUser({ _id: new Types.ObjectId(id) });
+    let user;
+    try {
+      user = await this.userDAO.getUser({ _id: new Types.ObjectId(id) });
+    } catch (error) {
+      exception.send(error.message, Constants.httpStatus400, UserService.name);
+    }
 
     if (user) {
       this.logger.log('User got successfully: ' + JSON.stringify(user), UserService.name);
@@ -53,8 +68,14 @@ export class UserService {
    * @returns user object array
    */
   async getUsers() {
+    let users;
+    try {
+      users = await this.userDAO.getUsers({});
+    } catch (error) {
+      exception.send(error.message, Constants.httpStatus400, UserService.name);
+    }
     this.logger.log('User gots successfully', UserService.name);
-    return await this.userDAO.getUsers({});
+    return users;
   }
 
   /**
@@ -63,10 +84,14 @@ export class UserService {
    * @returns update log
    */
   async updateUser(user: UserUpdateDTO) {
-    const oldUser = await this.getUser(user._id.toString());
-    const checkUserEmail = await this.userDAO.getUser({
-      email: user.email.toLocaleLowerCase(),
-    });
+    let oldUser;
+    let checkUserEmail;
+    try {
+      oldUser = await this.getUser(user._id.toString());
+      checkUserEmail = await this.userDAO.getUser({ email: user.email.toLocaleLowerCase() });
+    } catch (error) {
+      exception.send(error.message, Constants.httpStatus400, UserService.name);
+    }
 
     if (checkUserEmail != null && checkUserEmail._id.toString() !== oldUser._id.toString()) {
       exception.send(Constants.userWithThisEmail, Constants.httpStatus403, UserService.name);
@@ -79,7 +104,13 @@ export class UserService {
         user.password = oldUser.password;
       }
 
-      const updatedInfo = await this.userDAO.updateUser(user);
+      let updatedInfo;
+      try {
+        updatedInfo = await this.userDAO.updateUser(user);
+      } catch (error) {
+        exception.send(error.message, Constants.httpStatus400, UserService.name);
+      }
+
       if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
         this.logger.log('User updated successfully', UserService.name);
         return { message: Constants.userUpdated };
@@ -97,7 +128,12 @@ export class UserService {
    * @returns deletion log
    */
   async deleteUser(id: string) {
-    const deletedInfo = await this.userDAO.deleteUser(new Types.ObjectId(id));
+    let deletedInfo;
+    try {
+      deletedInfo = await this.userDAO.deleteUser(new Types.ObjectId(id));
+    } catch (error) {
+      exception.send(error.message, Constants.httpStatus400, UserService.name);
+    }
 
     if (deletedInfo.deletedCount === 1) {
       this.logger.log('User deleted successfully', UserService.name);
