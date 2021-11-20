@@ -6,13 +6,16 @@ import * as bcrypt from 'bcrypt';
 import { UserDTO } from '../user/DTOs/user.DTO';
 import { UserDAO } from '../user/DAO/user.DAO';
 import { Constants } from '../common/constants';
-
-import * as exception from '../common/helpers/exception.helper';
 import { UserUpdateDTO } from './DTOs/userUpdate.DTO';
+import { UtilsService } from '../common/services/Utils.service';
 
 @Injectable()
 export class UserService {
-  constructor(@Inject('UserDAO') private readonly userDAO: UserDAO, private readonly logger: Logger) {}
+  constructor(
+    @Inject('UserDAO') private readonly userDAO: UserDAO,
+    @Inject('UtilsService') private readonly utils: UtilsService,
+    private readonly logger: Logger,
+  ) {}
 
   /**
    * It creates a new User
@@ -24,18 +27,18 @@ export class UserService {
     try {
       checkUser = await this.userDAO.getUser(newUser.email.toLocaleLowerCase());
     } catch (error) {
-      exception.send(error.message, Constants.httpStatus400, UserService.name);
+      this.utils.send(error.message, Constants.httpStatus400, UserService.name);
     }
 
     if (checkUser != null) {
-      exception.send(Constants.userAlreadyExists, Constants.httpStatus403, UserService.name);
+      this.utils.send(Constants.userAlreadyExists, Constants.httpStatus403, UserService.name);
     } else {
       newUser.password = await bcrypt.hash(newUser.password, Constants.rounds);
       let user;
       try {
         user = await this.userDAO.createUser(newUser);
       } catch (error) {
-        exception.send(error.message, Constants.httpStatus400, UserService.name);
+        this.utils.send(error.message, Constants.httpStatus400, UserService.name);
       }
       this.logger.log('User created successfully: ' + JSON.stringify(user), UserService.name);
       return user;
@@ -52,14 +55,14 @@ export class UserService {
     try {
       user = await this.userDAO.getUser({ _id: new Types.ObjectId(id) });
     } catch (error) {
-      exception.send(error.message, Constants.httpStatus400, UserService.name);
+      this.utils.send(error.message, Constants.httpStatus400, UserService.name);
     }
 
     if (user) {
       this.logger.log('User got successfully: ' + JSON.stringify(user), UserService.name);
       return user;
     } else {
-      exception.send(Constants.userNotFound, Constants.httpStatus404, UserService.name);
+      this.utils.send(Constants.userNotFound, Constants.httpStatus404, UserService.name);
     }
   }
 
@@ -72,7 +75,7 @@ export class UserService {
     try {
       users = await this.userDAO.getUsers({});
     } catch (error) {
-      exception.send(error.message, Constants.httpStatus400, UserService.name);
+      this.utils.send(error.message, Constants.httpStatus400, UserService.name);
     }
     this.logger.log('User gots successfully', UserService.name);
     return users;
@@ -90,11 +93,11 @@ export class UserService {
       oldUser = await this.getUser(user._id.toString());
       checkUserEmail = await this.userDAO.getUser({ email: user.email.toLocaleLowerCase() });
     } catch (error) {
-      exception.send(error.message, Constants.httpStatus400, UserService.name);
+      this.utils.send(error.message, Constants.httpStatus400, UserService.name);
     }
 
     if (checkUserEmail != null && checkUserEmail._id.toString() !== oldUser._id.toString()) {
-      exception.send(Constants.userWithThisEmail, Constants.httpStatus403, UserService.name);
+      this.utils.send(Constants.userWithThisEmail, Constants.httpStatus403, UserService.name);
     } else {
       if (user.password !== null) {
         if (oldUser.password !== user.password) {
@@ -108,16 +111,16 @@ export class UserService {
       try {
         updatedInfo = await this.userDAO.updateUser(user);
       } catch (error) {
-        exception.send(error.message, Constants.httpStatus400, UserService.name);
+        this.utils.send(error.message, Constants.httpStatus400, UserService.name);
       }
 
       if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
         this.logger.log('User updated successfully', UserService.name);
         return { message: Constants.userUpdated };
       } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
-        exception.send(Constants.userNotUpdated, Constants.httpStatus202, UserService.name);
+        this.utils.send(Constants.userNotUpdated, Constants.httpStatus202, UserService.name);
       } else {
-        exception.send(Constants.userNotFound, Constants.httpStatus404, UserService.name);
+        this.utils.send(Constants.userNotFound, Constants.httpStatus404, UserService.name);
       }
     }
   }
@@ -132,14 +135,14 @@ export class UserService {
     try {
       deletedInfo = await this.userDAO.deleteUser(new Types.ObjectId(id));
     } catch (error) {
-      exception.send(error.message, Constants.httpStatus400, UserService.name);
+      this.utils.send(error.message, Constants.httpStatus400, UserService.name);
     }
 
     if (deletedInfo.deletedCount === 1) {
       this.logger.log('User deleted successfully', UserService.name);
       return { message: Constants.userDeleted };
     } else {
-      exception.send(Constants.userNotFound, Constants.httpStatus404, UserService.name);
+      this.utils.send(Constants.userNotFound, Constants.httpStatus404, UserService.name);
     }
   }
 }

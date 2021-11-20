@@ -7,14 +7,15 @@ import { AuthorDAO } from '../author/DAO/author.DAO';
 import { Constants } from '../common/constants';
 import { BookDAO } from '../book/DAO/book.DAO';
 import { AuthorUpdateDTO } from './DTOs/authorUpdate.DTO';
-import * as exception from '../common/helpers/exception.helper';
 import { BookUpdateDTO } from 'src/book/DTOs/bookUpdate.DTO';
+import { UtilsService } from 'src/common/services/Utils.service';
 
 @Injectable()
 export class AuthorService {
   constructor(
     @Inject('AuthorDAO') private readonly authorDAO: AuthorDAO,
     @Inject('BookDAO') private readonly bookDAO: BookDAO,
+    @Inject('UtilsService') private readonly utils: UtilsService,
     private readonly logger: Logger,
   ) {}
 
@@ -28,17 +29,17 @@ export class AuthorService {
     try {
       checkAuthor = await this.authorDAO.getAuthor({ name: newAuthor.name });
     } catch (error) {
-      exception.send(error.message, Constants.httpStatus400, AuthorService.name);
+      this.utils.send(error.message, Constants.httpStatus400, AuthorService.name);
     }
 
     if (checkAuthor != null) {
-      exception.send(Constants.authorAlreadyExists, Constants.httpStatus403, AuthorService.name);
+      this.utils.send(Constants.authorAlreadyExists, Constants.httpStatus403, AuthorService.name);
     } else {
       let author;
       try {
         author = await this.authorDAO.createAuthor(newAuthor);
       } catch (error) {
-        exception.send(error.message, Constants.httpStatus400, AuthorService.name);
+        this.utils.send(error.message, Constants.httpStatus400, AuthorService.name);
       }
       this.logger.log('Author created successfully: ' + JSON.stringify(author), AuthorService.name);
       return author;
@@ -55,14 +56,14 @@ export class AuthorService {
     try {
       author = await this.authorDAO.getAuthor({ _id: new Types.ObjectId(id) });
     } catch (error) {
-      exception.send(error.message, Constants.httpStatus400, AuthorService.name);
+      this.utils.send(error.message, Constants.httpStatus400, AuthorService.name);
     }
 
     if (author) {
       this.logger.log('Author got successfully: ' + JSON.stringify(author), AuthorService.name);
       return author;
     } else {
-      exception.send(Constants.authorNotFound, Constants.httpStatus404, AuthorService.name);
+      this.utils.send(Constants.authorNotFound, Constants.httpStatus404, AuthorService.name);
     }
   }
 
@@ -75,7 +76,7 @@ export class AuthorService {
     try {
       authors = await this.authorDAO.getAuthors({});
     } catch (error) {
-      exception.send(error.message, Constants.httpStatus400, AuthorService.name);
+      this.utils.send(error.message, Constants.httpStatus400, AuthorService.name);
     }
     this.logger.log('Authors got successfully', AuthorService.name);
     return authors;
@@ -99,16 +100,16 @@ export class AuthorService {
     try {
       updatedInfo = await this.authorDAO.updateAuthor(author);
     } catch (error) {
-      exception.send(error.message, Constants.httpStatus400, AuthorService.name);
+      this.utils.send(error.message, Constants.httpStatus400, AuthorService.name);
     }
 
     if (updatedInfo.modifiedCount === 1 && updatedInfo.matchedCount === 1) {
       this.logger.log('Author updated successfully', AuthorService.name);
       return { message: Constants.authorUpdated };
     } else if (updatedInfo.modifiedCount === 0 && updatedInfo.matchedCount === 1) {
-      exception.send(Constants.authorNotUpdated, Constants.httpStatus202, AuthorService.name);
+      this.utils.send(Constants.authorNotUpdated, Constants.httpStatus202, AuthorService.name);
     } else {
-      exception.send(Constants.authorNotFound, Constants.httpStatus404, AuthorService.name);
+      this.utils.send(Constants.authorNotFound, Constants.httpStatus404, AuthorService.name);
     }
   }
 
@@ -123,7 +124,7 @@ export class AuthorService {
       try {
         savedBook = await this.bookDAO.getBook({ _id: book });
       } catch (error) {
-        exception.send(error.message, Constants.httpStatus400, AuthorService.name);
+        this.utils.send(error.message, Constants.httpStatus400, AuthorService.name);
       }
 
       let authors = savedBook.authors;
@@ -151,7 +152,7 @@ export class AuthorService {
       try {
         await this.bookDAO.updateBook(updatedBook);
       } catch (error) {
-        exception.send(error.message, Constants.httpStatus400, AuthorService.name);
+        this.utils.send(error.message, Constants.httpStatus400, AuthorService.name);
       }
     }
   }
@@ -174,7 +175,7 @@ export class AuthorService {
       try {
         await this.bookDAO.updateBook(updatedBook);
       } catch (error) {
-        exception.send(error.message, Constants.httpStatus400, AuthorService.name);
+        this.utils.send(error.message, Constants.httpStatus400, AuthorService.name);
       }
     }
   }
@@ -189,7 +190,7 @@ export class AuthorService {
     try {
       deletedInfo = await this.authorDAO.deleteAuthor(new Types.ObjectId(id));
     } catch (error) {
-      exception.send(error.message, Constants.httpStatus400, AuthorService.name);
+      this.utils.send(error.message, Constants.httpStatus400, AuthorService.name);
     }
 
     if (deletedInfo.deletedCount === 1) {
@@ -200,7 +201,7 @@ export class AuthorService {
       this.logger.log('Authors deleted successfully', AuthorService.name);
       return { message: Constants.authorDeleted };
     } else {
-      exception.send(Constants.authorNotFound, Constants.httpStatus404, AuthorService.name);
+      this.utils.send(Constants.authorNotFound, Constants.httpStatus404, AuthorService.name);
     }
   }
 

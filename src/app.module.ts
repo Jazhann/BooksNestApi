@@ -9,6 +9,7 @@ import { UserDAOModule } from './user/DAO/userDAO.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthorModule } from './author/author.module';
 import { BookModule } from './book/book.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { BookModule } from './book/book.module';
     AuthorModule,
     BookModule,
     UserDAOModule,
+    CommonModule,
     MongooseModule.forRootAsync({
       useFactory: () => ({
         uri: process.env.MONGODB_URI,
