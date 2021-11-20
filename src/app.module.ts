@@ -5,7 +5,7 @@ import { UserModule } from './user/user.module';
 
 import { AppController } from './app.controller';
 import { AuthService } from './auth/auth.service';
-import { UserDAOModule } from './user/DAO/userDAO.module';
+import { DAOModule } from './DAO/DAO.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthorModule } from './author/author.module';
 import { BookModule } from './book/book.module';
@@ -17,7 +17,7 @@ import { CommonModule } from './common/common.module';
     UserModule,
     AuthorModule,
     BookModule,
-    UserDAOModule,
+    DAOModule,
     CommonModule,
     MongooseModule.forRootAsync({
       useFactory: () => ({

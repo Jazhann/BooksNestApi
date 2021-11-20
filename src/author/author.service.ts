@@ -3,9 +3,9 @@ import { Types } from 'mongoose';
 import { Parser, transforms as tf } from 'json2csv';
 
 import { AuthorDTO } from '../author/DTOs/author.DTO';
-import { AuthorDAO } from '../author/DAO/author.DAO';
+import { AuthorDAO } from '../DAO/author.DAO';
 import { Constants } from '../common/constants';
-import { BookDAO } from '../book/DAO/book.DAO';
+import { BookDAO } from '../DAO/book.DAO';
 import { AuthorUpdateDTO } from './DTOs/authorUpdate.DTO';
 import { BookUpdateDTO } from '../book/DTOs/bookUpdate.DTO';
 import { UtilsService } from '../common/services/Utils.service';

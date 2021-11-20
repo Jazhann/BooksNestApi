@@ -4,11 +4,11 @@ import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { UserDAOModule } from '../user/DAO/userDAO.module';
+import { DAOModule } from '../DAO/DAO.module';
 
 @Module({
   imports: [
-    UserDAOModule,
+    DAOModule,
     PassportModule,
     JwtModule.registerAsync({
       useFactory: async () => ({

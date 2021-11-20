@@ -3,10 +3,10 @@ import { CommonModule } from '../common/common.module';
 import { UserController } from '../user/user.controller';
 
 import { UserService } from '../user/user.service';
-import { UserDAOModule } from './DAO/userDAO.module';
+import { DAOModule } from '../DAO/DAO.module';
 
 @Module({
-  imports: [UserDAOModule, CommonModule],
+  imports: [DAOModule, CommonModule],
   controllers: [UserController],
   providers: [UserService, Logger],
 })

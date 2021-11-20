@@ -2,8 +2,8 @@ import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UtilsService } from '../common/services/Utils.service';
-import { AuthorDAO } from './DAO/author.DAO';
-import { BookDAO } from '../book/DAO/book.DAO';
+import { AuthorDAO } from '../DAO/author.DAO';
+import { BookDAO } from '../DAO/book.DAO';
 import { AuthorService } from './author.service';
 
 class AuthorModel {

@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Book } from '../interfaces/book.interface';
-import { BookDTO } from '../DTOs/book.DTO';
-import { BookUpdateDTO } from '../DTOs/bookUpdate.DTO';
+import { Book } from '../book/interfaces/book.interface';
+import { BookDTO } from '../book/DTOs/book.DTO';
+import { BookUpdateDTO } from '../book/DTOs/bookUpdate.DTO';
 
 @Injectable()
 export class BookDAO {

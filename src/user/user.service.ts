@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
 import { UserDTO } from '../user/DTOs/user.DTO';
-import { UserDAO } from '../user/DAO/user.DAO';
+import { UserDAO } from '../DAO/user.DAO';
 import { Constants } from '../common/constants';
 import { UserUpdateDTO } from './DTOs/userUpdate.DTO';
 import { UtilsService } from '../common/services/Utils.service';

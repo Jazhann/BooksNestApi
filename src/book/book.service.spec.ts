@@ -2,9 +2,9 @@ import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UtilsService } from '../common/services/Utils.service';
-import { AuthorDAO } from '../author/DAO/author.DAO';
+import { AuthorDAO } from '../DAO/author.DAO';
 import { BookService } from './book.service';
-import { BookDAO } from './DAO/book.DAO';
+import { BookDAO } from '../DAO/book.DAO';
 
 class AuthorModel {
   constructor(private data) {}

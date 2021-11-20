@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserDAO } from '../user/DAO/user.DAO';
+import { UserDAO } from '../DAO/user.DAO';
 
 import * as bcrypt from 'bcrypt';
 import * as _ from 'lodash';

@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UtilsService } from '../common/services/Utils.service';
-import { UserDAO } from './DAO/user.DAO';
+import { UserDAO } from '../DAO/user.DAO';
 import { UserService } from './user.service';
 
 class UserModel {
