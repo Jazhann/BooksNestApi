@@ -19,7 +19,7 @@ import { BookModule } from './book/book.module';
     UserDAOModule,
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        uri: `${process.env.MONGODB_URI}`,
+        uri: process.env.MONGODB_URI,
       }),
     }),
   ],
