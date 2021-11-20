@@ -61,7 +61,7 @@ export class BookService {
   async getBook(id: string) {
     let book;
     try {
-      await this.bookDAO.getBook({ _id: new Types.ObjectId(id) });
+      book = await this.bookDAO.getBook({ _id: new Types.ObjectId(id) });
     } catch (error) {
       this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
     }
