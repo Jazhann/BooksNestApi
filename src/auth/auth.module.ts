@@ -10,8 +10,10 @@ import { UserDAOModule } from '../user/DAO/userDAO.module';
   imports: [
     UserDAOModule,
     PassportModule,
-    JwtModule.register({
-      secret: `${process.env.JWT_SECRET}`,
+    JwtModule.registerAsync({
+      useFactory: async () => ({
+        secretOrPrivateKey: process.env.JWT_SECRET,
+      }),
     }),
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],

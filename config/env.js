@@ -9,7 +9,7 @@ async function loadEnv() {
   for (let i = 0; i < envLines.length; i++) {
     let [key, ...value] = envLines[i].split('=');
     value = value.join('=');
-    process.env[key] = value;
+    process.env[key] = value.trim();
   }
 }
 
