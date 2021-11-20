@@ -2,14 +2,14 @@
 var fs = require('fs');
 
 async function loadEnv() {
-  const envFileName = process.env.NODE_ENV.trim();
+  const envFileName = process.env.NODE_ENV;
   const envFilePath = './config/' + envFileName + '.env';
   const envFile = await readFile(envFilePath);
   const envLines = envFile.split('\n');
   for (let i = 0; i < envLines.length; i++) {
     let [key, ...value] = envLines[i].split('=');
     value = value.join('=');
-    process.env[key] = value.trim();
+    process.env[key] = value;
   }
 }
 
