@@ -46,15 +46,29 @@ set MONGO_URI env variable in dev.env and prod.env inside config folder
 ## Running the app
 
 ```bash
-# development
+# development windows
 $ npm run start
 
-# watch mode
+# watch mode windows
 $ npm run start:dev
 
-# production mode
+# production mode windows 
 $ npm run start:prod
+
+# development linux
+$ npm run start:linux
+
+# watch mode linux
+$ npm run start:dev:linux
+
+# production mode linux 
+$ npm run start:prod:linux
+
 ```
+
+## Swagger
+
+Swagger url is http://apihost:8080/api
 
 ## Test
 
