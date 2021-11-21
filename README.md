@@ -49,9 +49,9 @@ You can configure development and productions environments using dev.env and pro
 
 env variables defined:
 
--MONGO_URI mongodb database uri
--PORT api port, default is 8080
--JWT_SECRET secret used in JWT
+- MONGO_URI mongodb database uri
+- PORT api port, default is 8080
+- JWT_SECRET secret used in JWT
 
 ## Running the app
 
