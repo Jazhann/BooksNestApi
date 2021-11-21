@@ -80,6 +80,10 @@ $ npm run start:prod:linux
 
 Swagger url is http://apihost:8080/api
 
+## Logger
+
+Logs are save inside logs folder, using error.log file for errors and combined.log file for info. Console logs are disabled in production.
+
 ## Test
 
 ```bash
