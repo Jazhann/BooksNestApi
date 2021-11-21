@@ -24,13 +24,24 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+API with authors and books, features:
+
+- JWT authentication
+- Class validator
+- Mongoose
+- Winston logger
+- Swagger
+- Develop and production environments
+- Jest unit test with sinon
 
 ## Installation
+
+Download repository, use node version 16.13.0 and run:
 
 ```bash
 $ npm install
 ```
+set MONGO_URI env variable in dev.env and prod.env inside config folder
 
 ## Running the app
 
@@ -51,23 +62,6 @@ $ npm run start:prod
 # unit tests
 $ npm run test
 
-# e2e tests
-$ npm run test:e2e
-
 # test coverage
 $ npm run test:cov
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
