@@ -1,9 +1,9 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsDate, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UserDTO {
   @IsNotEmpty()
-  @IsString()
+  @IsEmail()
   @ApiProperty()
   email: string;
 
@@ -12,6 +12,7 @@ export class UserDTO {
   @ApiProperty()
   password: string;
 
+  @IsOptional()
   @IsNumber()
   @ApiProperty({ required: false, nullable: true })
   phone?: number;
@@ -21,18 +22,22 @@ export class UserDTO {
   @ApiProperty()
   name: string;
 
+  @IsOptional()
   @IsString()
   @ApiProperty({ required: false, nullable: true })
   dni?: string;
 
+  @IsOptional()
   @IsString()
   @ApiProperty({ required: false, nullable: true })
   city?: string;
 
+  @IsOptional()
   @IsDate()
   @ApiProperty({ required: false, nullable: true })
   birthDate?: Date;
 
+  @IsOptional()
   @IsDate()
   @ApiHideProperty()
   registrationDate?: Date;

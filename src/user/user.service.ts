@@ -25,7 +25,7 @@ export class UserService {
   async createUser(newUser: UserDTO) {
     let checkUser;
     try {
-      checkUser = await this.userDAO.getUser(newUser.email.toLocaleLowerCase());
+      checkUser = await this.userDAO.getUser({ email: newUser.email.toLocaleLowerCase() });
     } catch (error) {
       this.utils.sendException(error.message, Constants.httpStatus400, UserService.name);
     }

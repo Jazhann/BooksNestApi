@@ -77,7 +77,12 @@ export class AuthorService {
    * @returns update log
    */
   async updateAuthor(author: AuthorUpdateDTO) {
-    const oldAuthor = await this.authorDAO.getAuthor({ _id: author._id });
+    let oldAuthor;
+    try {
+      oldAuthor = await this.authorDAO.getAuthor({ _id: author._id });
+    } catch (error) {
+      this.utils.sendException(error.message, Constants.httpStatus400, AuthorService.name);
+    }
     const differentsArrays = JSON.stringify(oldAuthor.books.sort()) !== JSON.stringify(author.books.sort());
 
     if (differentsArrays && author.books.length > 0) {
@@ -85,6 +90,7 @@ export class AuthorService {
     } else if (differentsArrays && author.books.length === 0) {
       await this.updateBooksEmptyArray(author, oldAuthor);
     }
+
     let updatedInfo;
     try {
       updatedInfo = await this.authorDAO.updateAuthor(author);
@@ -107,14 +113,22 @@ export class AuthorService {
    * @param author author to update
    * @param oldAuthor author saved
    */
-  private async updateBooks(author: AuthorUpdateDTO, oldAuthor) {
-    for (const book of author.books) {
+  private async updateBooks(author, oldAuthor) {
+    const books = [...new Set(author.books.concat(oldAuthor.books.map((bk) => bk._id.toString())))];
+    for (const book of books) {
       let savedBook: BookUpdateDTO;
       try {
         savedBook = await this.bookDAO.getBook({ _id: book });
       } catch (error) {
         this.utils.sendException(error.message, Constants.httpStatus400, AuthorService.name);
       }
+
+      let deletedBook = true;
+      author.books.forEach((bk) => {
+        if (bk === savedBook._id.toString()) {
+          deletedBook = false;
+        }
+      });
 
       let authors = savedBook.authors;
 
@@ -125,9 +139,9 @@ export class AuthorService {
         }
       });
 
-      if (!included) {
-        authors.push(oldAuthor);
-      } else {
+      if (!included && !deletedBook) {
+        authors.push(author);
+      } else if (deletedBook) {
         authors = authors.filter((at) => at.toString() !== author._id.toString());
       }
 

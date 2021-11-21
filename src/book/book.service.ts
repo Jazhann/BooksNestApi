@@ -149,14 +149,22 @@ export class BookService {
    * @param book book to update
    * @param oldBook book saved
    */
-  private async updateAuthors(book: BookUpdateDTO, oldBook) {
-    for (const author of book.authors) {
+  private async updateAuthors(book, oldBook) {
+    const authors = [...new Set(book.authors.concat(oldBook.authors.map((at) => at._id.toString())))];
+    for (const author of authors) {
       let savedAuthor: AuthorUpdateDTO;
       try {
         savedAuthor = await this.authorDAO.getAuthor({ _id: author });
       } catch (error) {
         this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
       }
+
+      let deletedAuthor = true;
+      book.authors.forEach((at) => {
+        if (at === savedAuthor._id.toString()) {
+          deletedAuthor = false;
+        }
+      });
 
       let books = savedAuthor.books;
 
@@ -167,9 +175,9 @@ export class BookService {
         }
       });
 
-      if (!included) {
+      if (!included && !deletedAuthor) {
         books.push(oldBook);
-      } else {
+      } else if (deletedAuthor) {
         books = books.filter((bk) => bk.toString() !== book._id.toString());
       }
 
