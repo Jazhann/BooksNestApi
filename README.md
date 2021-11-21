@@ -43,6 +43,16 @@ $ npm install
 ```
 set MONGO_URI env variable in dev.env and prod.env inside config folder
 
+## Environments
+
+You can configure development and productions environments using dev.env and prod.env files inside config folder.
+
+env variables defined:
+
+-MONGO_URI mongodb database uri
+-PORT api port, default is 8080
+-JWT_SECRET secret used in JWT
+
 ## Running the app
 
 ```bash
