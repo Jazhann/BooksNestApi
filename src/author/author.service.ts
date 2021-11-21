@@ -153,7 +153,12 @@ export class AuthorService {
    */
   private async updateBooksEmptyArray(author: AuthorUpdateDTO, oldAuthor) {
     for (const book of oldAuthor.books) {
-      const savedBook = await this.bookDAO.getBook({ _id: book });
+      let savedBook;
+      try {
+        savedBook = await this.bookDAO.getBook({ _id: book });
+      } catch (error) {
+        this.utils.sendException(error.message, Constants.httpStatus400, AuthorService.name);
+      }
       const updatedBook = {
         _id: savedBook._id,
         title: savedBook.title,

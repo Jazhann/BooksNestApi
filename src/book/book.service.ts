@@ -28,14 +28,19 @@ export class BookService {
     await this.checkBook(newBook);
     let book;
     try {
-      await this.bookDAO.createBook(newBook);
+      book = await this.bookDAO.createBook(newBook);
     } catch (error) {
       this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
     }
     for (const author of book.authors) {
-      const updatedAuthor = await this.authorDAO.getAuthor({ _id: author });
-      updatedAuthor.books.push(book);
-      await this.authorDAO.updateAuthor(updatedAuthor);
+      let updatedAuthor;
+      try {
+        updatedAuthor = await this.authorDAO.getAuthor({ _id: author });
+        updatedAuthor.books.push(book);
+        await this.authorDAO.updateAuthor(updatedAuthor);
+      } catch (error) {
+        this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
+      }
     }
     this.logger.log('Book created successfully: ' + JSON.stringify(book), BookService.name);
     return book;
@@ -188,7 +193,12 @@ export class BookService {
    */
   private async updateAuthorsArrayEmpty(book: BookUpdateDTO, oldBook) {
     for (const author of oldBook.authors) {
-      const savedAuthor = await this.authorDAO.getAuthor({ _id: author });
+      let savedAuthor;
+      try {
+        savedAuthor = await this.authorDAO.getAuthor({ _id: author });
+      } catch (error) {
+        this.utils.sendException(error.message, Constants.httpStatus400, BookService.name);
+      }
       const updatedAuthor = {
         _id: savedAuthor._id,
         name: savedAuthor.name,

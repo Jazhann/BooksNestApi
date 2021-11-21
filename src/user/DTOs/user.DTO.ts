@@ -14,7 +14,7 @@ export class UserDTO {
 
   @IsNumber()
   @ApiProperty({ required: false, nullable: true })
-  phone: number;
+  phone?: number;
 
   @IsNotEmpty()
   @IsString()
@@ -23,17 +23,17 @@ export class UserDTO {
 
   @IsString()
   @ApiProperty({ required: false, nullable: true })
-  dni: string;
+  dni?: string;
 
   @IsString()
   @ApiProperty({ required: false, nullable: true })
-  city: string;
+  city?: string;
 
   @IsDate()
   @ApiProperty({ required: false, nullable: true })
-  birthDate: Date;
+  birthDate?: Date;
 
   @IsDate()
   @ApiHideProperty()
-  registrationDate: Date;
+  registrationDate?: Date;
 }
